@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="root" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.DasbordViewController">
+    <children>
+        <VBox layoutX="50.0" layoutY="20.0" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="20.0">
+            <children>
+                <VBox>
+                    <children>
+                        <Label styleClass="header-title" text="Your Financial Overview" />
+                        <Label styleClass="header-subtitle" text="Track your income and expenses with ease" />
+                    </children>
+                </VBox>
+
+                <HBox spacing="30.0">
+                    <children>
+                        <VBox styleClass="card, income-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Total Income" />
+                                <Label fx:id="totalIncomeLabel" styleClass="amount-label" text="\$5,240" />
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <SVGPath content="M5 15h14l-7-8z" styleClass="icon-up" />
+                                        <Label styleClass="percentage-label, green-text" text="+12% from last month" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox styleClass="card, expenses-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Total Expenses" />
+                                <Label fx:id="totalExpensesLabel" styleClass="amount-label" text="\$3,180" />
+                                <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                    <children>
+                                        <SVGPath content="M5 9h14l-7 8z" styleClass="icon-down" />
+                                        <Label styleClass="percentage-label, red-text" text="+5% from last month" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox styleClass="card, balance-card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Net Balance" />
+                                <Label fx:id="netBalanceLabel" styleClass="amount-label-large" text="\$2,060" />
+                                <Label styleClass="balance-subtitle" text="Available balance" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox spacing="30.0">
+                    <children>
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="section-title" text="Expenses by Category" />
+                                <PieChart fx:id="expensesPieChart" legendVisible="true" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="20.0" prefWidth="350.0">
+                            <VBox styleClass="card" spacing="10.0">
+                                <children>
+                                    <Label styleClass="section-title" text="Quick Actions" />
+                                    <Button styleClass="button-primary" text="Add Income" maxWidth="Infinity"/>
+                                    <Button styleClass="button-secondary" text="Add Expense" maxWidth="Infinity"/>
+                                    <Button styleClass="button-tertiary" text="View Reports" maxWidth="Infinity"/>
+                                </children>
+                            </VBox>
+                            <VBox styleClass="card" spacing="10.0" VBox.vgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="section-title" text="Recent Transactions" />
+                                    <ListView fx:id="transactionsListView" />
+                                </children>
+                            </VBox>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
