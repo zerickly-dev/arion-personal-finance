@@ -29,5 +29,24 @@ public class LoginViewController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void RegisterView (ActionEvent event) {
+        try {
+            // Carga el nuevo FXML
+            Parent nuevaEscena = FXMLLoader.load(getClass().getResource("/Fxml/RegisterView.fxml"));
+
+            // Obtiene la ventana actual
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Cambia la escena
+            stage.setScene(new Scene(nuevaEscena));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     }
 
