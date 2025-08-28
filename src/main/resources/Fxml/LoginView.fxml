@@ -43,15 +43,27 @@
 
                 <VBox spacing="5.0" styleClass="form-field">
                     <Label text="Contraseña" />
-                    <HBox alignment="CENTER_LEFT" styleClass="input-group">
-                        <SVGPath content="M18,8h-1V6c0-2.76-2.24-5-5-5S7,3.24,7,6v2H6c-1.1,0-2,0.9-2,2v10c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V10C20,8.9,19.1,8,18,8z M12,17c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,17,12,17z M16.1,8H7.9V6c0-2.21,1.79-4,4.1-4s4.1,1.79,4.1,4V8z" styleClass="icon" />
-                        <PasswordField fx:id="passwordField" promptText="••••••••" />
-                        <SVGPath content="M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5s5,2.24,5,5S14.76,17,12,17z M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S13.66,9,12,9z" styleClass="icon-eye">
-                     <HBox.margin>
-                        <Insets right="30.0" />
-                     </HBox.margin></SVGPath>
+                    <HBox alignment="CENTER_LEFT" styleClass="input-group" spacing="5">
+                        <!-- Icono del candado -->
+                        <SVGPath content="M18,8h-1V6c0-2.76-2.24-5-5-5S7,3.24,7,6v2H6c-1.1,0-2,0.9-2,2v10c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V10C20,8.9,19.1,8,18,8z
+                          M12,17c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,17,12,17z
+                          M16.1,8H7.9V6c0-2.21,1.79-4,4.1-4s4.1,1.79,4.1,4V8z"
+                                 styleClass="icon" />
+
+                        <!-- Campo contraseña -->
+                        <PasswordField fx:id="passwordField"
+                                       promptText="••••••••"
+                                       HBox.hgrow="ALWAYS"
+                                       prefWidth="250"/>
+
+                        <!-- Icono del ojo -->
+                        <SVGPath content="M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z
+                          M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5s5,2.24,5,5S14.76,17,12,17z
+                          M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S13.66,9,12,9z"
+                                 styleClass="icon-eye"/>
                     </HBox>
                 </VBox>
+
 
                 <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 5 0 5 0;">
                     <Pane HBox.hgrow="ALWAYS" />
