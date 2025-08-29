@@ -71,7 +71,7 @@
                                     <Label styleClass="section-title" text="Quick Actions" />
                                     <Button fx:id="addIncomeButton" onAction="#addIncome" styleClass="button-primary" text="Add Income" maxWidth="Infinity"/>
                                     <Button fx:id="addExpenseButton" onAction="#addExpense" styleClass="button-secondary" text="Add Expense" maxWidth="Infinity"/>
-                                    <Button styleClass="button-tertiary" text="View Reports" maxWidth="Infinity"/>
+                                    <Button fx:id="viewReportsButton" styleClass="button-tertiary" text="View Reports" maxWidth="Infinity" onAction="#onViewReportsClick"/>
                                 </children>
                             </VBox>
                             <VBox styleClass="card" spacing="10.0" VBox.vgrow="ALWAYS">
