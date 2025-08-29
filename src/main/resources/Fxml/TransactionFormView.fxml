@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+
+<VBox fx:id="rootPane" alignment="TOP_CENTER" spacing="20.0" styleClass="form-container"  stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.TransactionFormController">
+    <padding>
+        <Insets bottom="25.0" left="30.0" right="30.0" top="25.0" />
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <SVGPath fx:id="formIcon" content="M0 0h24v24H0z" />
+        <Label fx:id="formTitleLabel" styleClass="form-title" text="Transaction Form" />
+    </HBox>
+
+    <VBox spacing="15.0">
+        <VBox spacing="5.0">
+            <Label text="Amount" styleClass="form-label"/>
+            <HBox alignment="CENTER_LEFT" styleClass="input-group">
+                <Text text="\$" styleClass="currency-symbol"/>
+                <TextField fx:id="amountField" promptText="0.00" />
+            </HBox>
+        </VBox>
+
+        <VBox spacing="5.0">
+            <Label text="Category" styleClass="form-label"/>
+            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" promptText="Select Category" />
+        </VBox>
+
+        <VBox spacing="5.0">
+            <Label text="Date" styleClass="form-label"/>
+            <DatePicker fx:id="datePicker" maxWidth="Infinity" />
+        </VBox>
+
+        <VBox spacing="5.0">
+            <Label text="Note (Optional)" styleClass="form-label"/>
+            <TextArea fx:id="noteTextArea" promptText="Add a note..." wrapText="true" prefHeight="80"/>
+        </VBox>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+        <padding>
+            <Insets top="10.0" />
+        </padding>
+
+        <Button onAction="#cancel" text="Cancel" styleClass="button-cancel" />
+        <Button fx:id="saveButton" onAction="#save" text="Save" styleClass="button-primary" />
+    </HBox>
+
+</VBox>
