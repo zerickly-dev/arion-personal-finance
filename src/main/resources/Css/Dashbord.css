@@ -143,3 +143,75 @@
     -fx-border-width: 1;
 }
 .list-cell:last-child { -fx-border-width: 0; }
+
+/* Añade esto a tu archivo styles.css */
+
+/* --- Estilos para el Formulario Modal --- */
+.form-container {
+    -fx-background-color: #FFFFFF;
+    -fx-pref-width: 400px;
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555;
+}
+
+.icon-form {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+.currency-symbol {
+    -fx-font-size: 14px;
+    -fx-fill: #888888;
+    -fx-padding-right: 5px;
+}
+
+/* CSS del TransactionForm */
+.text-area.text-input {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+}
+
+.text-area:focused {
+    -fx-border-color: #007BFF;
+}
+
+.combo-box, .date-picker {
+    -fx-background-color: #F8F9FA;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.combo-box:focused, .date-picker:focused {
+    -fx-border-color: #007BFF;
+}
+.date-picker > .text-field {
+     -fx-background-color: transparent;
+}
+
+
+.button-cancel {
+    -fx-background-color: #E0E0E0;
+    -fx-text-fill: #555;
+    -fx-font-weight: bold;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+.button-cancel:hover {
+    -fx-background-color: #CCCCCC;
+}
