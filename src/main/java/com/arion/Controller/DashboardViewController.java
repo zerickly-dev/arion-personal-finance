@@ -6,9 +6,13 @@ import com.arion.Model.Transaction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -16,6 +20,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -89,5 +97,35 @@ public class DashboardViewController implements Initializable {
                 }
             }
         });
+    }
+
+    @FXML
+    private void addIncome() {
+        openTransactionForm(TransactionFormController.FormType.INCOME);
+    }
+
+    @FXML
+    private void addExpense() {
+        openTransactionForm(TransactionFormController.FormType.EXPENSE);
+    }
+
+    private void openTransactionForm(TransactionFormController.FormType formType) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/TransactionFormView.fxml"));
+            Parent root = loader.load();
+
+            TransactionFormController controller = loader.getController();
+            controller.configureFor(formType);
+
+            Stage stage = new Stage();
+            stage.setTitle(formType == TransactionFormController.FormType.INCOME ? "Add Income" : "Add Expense");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
