@@ -69,8 +69,8 @@
                             <VBox styleClass="card" spacing="10.0">
                                 <children>
                                     <Label styleClass="section-title" text="Quick Actions" />
-                                    <Button styleClass="button-primary" text="Add Income" maxWidth="Infinity"/>
-                                    <Button styleClass="button-secondary" text="Add Expense" maxWidth="Infinity"/>
+                                    <Button fx:id="addIncomeButton" onAction="#addIncome" styleClass="button-primary" text="Add Income" maxWidth="Infinity"/>
+                                    <Button fx:id="addExpenseButton" onAction="#addExpense" styleClass="button-secondary" text="Add Expense" maxWidth="Infinity"/>
                                     <Button styleClass="button-tertiary" text="View Reports" maxWidth="Infinity"/>
                                 </children>
                             </VBox>
