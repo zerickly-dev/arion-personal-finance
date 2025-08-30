@@ -5,49 +5,89 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
 
 <VBox fx:id="rootPane" alignment="TOP_CENTER" spacing="20.0" styleClass="form-container"  stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.TransactionFormController">
     <padding>
-        <Insets bottom="25.0" left="30.0" right="30.0" top="25.0" />
+        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
     </padding>
 
-    <HBox alignment="CENTER_LEFT" spacing="10.0">
-        <SVGPath fx:id="formIcon" content="M0 0h24v24H0z" />
-        <Label fx:id="formTitleLabel" styleClass="form-title" text="Transaction Form" />
+    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="form-header">
+        <SVGPath fx:id="formIcon" content="M0 0h24v24H0z" styleClass="form-icon" />
+        <Label fx:id="formTitleLabel" styleClass="form-title" text="Transaction Form">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
     </HBox>
 
-    <VBox spacing="15.0">
-        <VBox spacing="5.0">
-            <Label text="Amount" styleClass="form-label"/>
-            <HBox alignment="CENTER_LEFT" styleClass="input-group">
-                <Text text="\$" styleClass="currency-symbol"/>
-                <TextField fx:id="amountField" promptText="0.00" />
+    <Separator />
+
+    <VBox spacing="20.0">
+        <VBox spacing="8.0">
+            <Label text="Amount" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <HBox alignment="CENTER_LEFT" styleClass="input-group" style="-fx-background-color: #f5f5f5; -fx-background-radius: 5;">
+                <padding>
+                    <Insets left="10.0" />
+                </padding>
+                <Text text="" styleClass="currency-symbol">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Text>
+                <TextField fx:id="amountField" promptText="0.00" style="-fx-background-color: transparent;" />
             </HBox>
         </VBox>
 
-        <VBox spacing="5.0">
-            <Label text="Category" styleClass="form-label"/>
-            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" promptText="Select Category" />
+        <VBox spacing="8.0">
+            <Label text="Category" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" promptText="Select Category" style="-fx-background-radius: 5; -fx-padding: 8;" />
         </VBox>
 
-        <VBox spacing="5.0">
-            <Label text="Date" styleClass="form-label"/>
-            <DatePicker fx:id="datePicker" maxWidth="Infinity" />
+        <VBox spacing="8.0">
+            <Label text="Date" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <DatePicker fx:id="datePicker" maxWidth="Infinity" style="-fx-background-radius: 5;" />
         </VBox>
 
-        <VBox spacing="5.0">
-            <Label text="Note (Optional)" styleClass="form-label"/>
-            <TextArea fx:id="noteTextArea" promptText="Add a note..." wrapText="true" prefHeight="80"/>
+        <VBox spacing="8.0">
+            <Label text="Note (Optional)" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <TextArea fx:id="noteTextArea" promptText="Add a note..." wrapText="true" prefHeight="100" style="-fx-background-radius: 5;" />
         </VBox>
     </VBox>
 
-    <HBox alignment="CENTER_RIGHT" spacing="10.0">
+    <Separator />
+
+    <HBox alignment="CENTER_RIGHT" spacing="15.0">
         <padding>
             <Insets top="10.0" />
         </padding>
 
-        <Button onAction="#cancel" text="Cancel" styleClass="button-cancel" />
-        <Button fx:id="saveButton" onAction="#save" text="Save" styleClass="button-primary" />
+        <Button onAction="#cancel" text="Cancel" styleClass="button-cancel" style="-fx-background-radius: 5; -fx-padding: 10 15;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </Button>
+        <Button fx:id="saveButton" onAction="#save" text="Save" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 10 20;">
+            <font>
+                <Font name="System Bold" size="13.0" />
+            </font>
+        </Button>
     </HBox>
 
 </VBox>
