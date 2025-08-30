@@ -62,6 +62,12 @@ public class DashboardViewController implements Initializable {
 
         expensesPieChart.setData(pieChartData);
         expensesPieChart.setTitle(null); // Título ya está en la VBox
+
+        // Hacer que el gráfico ocupe todo el espacio disponible
+        expensesPieChart.setMinSize(PieChart.USE_PREF_SIZE, PieChart.USE_PREF_SIZE);
+        expensesPieChart.setPrefSize(500, 400);
+        expensesPieChart.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        expensesPieChart.setLabelsVisible(true);
     }
 
     private void setupTransactionList() {
@@ -163,9 +169,10 @@ public class DashboardViewController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle(formType == TransactionFormController.FormType.INCOME ? "Add Income" : "Add Expense");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 500, 650)); // Aumento el tamaño para mostrar todos los elementos correctamente
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
+            stage.setResizable(false); // No permitir cambiar el tamaño
+            stage.centerOnScreen(); // Centrar en la pantalla
 
             stage.setOnHidden(e -> {
                 // Actualizar la vista cuando se cierre el formulario
@@ -203,9 +210,10 @@ public class DashboardViewController implements Initializable {
 
             Stage stage = new Stage();
             stage.setTitle("Transaction Reports");
-            stage.setScene(new Scene(root, 800, 600));
+            stage.setScene(new Scene(root, 900, 650)); // Tamaño adecuado para los reportes
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(true);
+            stage.setResizable(true); // Permitir cambiar el tamaño
+            stage.centerOnScreen(); // Centrar en la pantalla
             stage.show();
 
         } catch (IOException e) {
