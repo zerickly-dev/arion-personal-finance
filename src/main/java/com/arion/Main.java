@@ -13,6 +13,7 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("Mi App JavaFX");
+        stage.setMaximized(true); // Establece la ventana en pantalla completa
         stage.show();
     }
 
