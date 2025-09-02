@@ -1,39 +1,37 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.arion</groupId>
     <artifactId>Arion</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>Arion</name>
     <description>Gestor de finanzas personales en JavaFX</description>
     <packaging>jar</packaging>
+
     <properties>
-        <!--  Java  -->
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--  Versiones  -->
+
+        <!-- Versiones -->
         <javafx.version>23.0.2</javafx.version>
-        <atlantafx.version>2.1.0</atlantafx.version>
         <ikonli.version>12.4.0</ikonli.version>
-        <hikari.version>7.0.1</hikari.version>
-        <oracle.jdbc.version>23.9.0.25.07</oracle.jdbc.version>
-        <jackson.version>2.17.2</jackson.version>
-        <logback.version>1.5.8</logback.version>
-        <poi.version>5.2.5</poi.version>
         <openpdf.version>2.0.3</openpdf.version>
-        <commonslang.version>3.14.0</commonslang.version>
-        <!--  Testing  -->
-        <junit.version>5.10.2</junit.version>
-        <testcontainers.version>1.19.7</testcontainers.version>
-        <!--  Plugins  -->
+        <postgresql.version>42.6.0</postgresql.version>
+
+        <!-- Plugins -->
         <compiler.plugin.version>3.11.0</compiler.plugin.version>
-        <surefire.plugin.version>3.2.5</surefire.plugin.version>
         <javafx.plugin.version>0.0.8</javafx.plugin.version>
         <shade.plugin.version>3.5.0</shade.plugin.version>
-        <!--  Clase principal  -->
+
+        <!-- Clase principal -->
         <main.class>com.arion.Main</main.class>
     </properties>
+
     <dependencies>
-        <!--  JavaFX  -->
+        <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -44,12 +42,8 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <!--  Tema/UI extra  -->
-        <dependency>
-            <groupId>io.github.mkpaz</groupId>
-            <artifactId>atlantafx-base</artifactId>
-            <version>${atlantafx.version}</version>
-        </dependency>
+
+        <!-- Ikonli  -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
@@ -60,70 +54,26 @@
             <artifactId>ikonli-fontawesome5-pack</artifactId>
             <version>${ikonli.version}</version>
         </dependency>
-        <!--  Persistencia / DB  -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>${hikari.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-            <version>${oracle.jdbc.version}</version>
-        </dependency>
-        <!--  Utilidades  -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commonslang.version}</version>
-        </dependency>
-        <!--  JSON  -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <!--  Logging  -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <!--  Exportaciones  -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
-        </dependency>
+
+        <!-- OpenPDF -->
         <dependency>
             <groupId>com.github.librepdf</groupId>
             <artifactId>openpdf</artifactId>
             <version>${openpdf.version}</version>
         </dependency>
-        <!--  Testing  -->
+
+        <!-- PostgreSQL JDBC -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>oracle-free</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
-            <!--  Compilar a Java 21  -->
+            <!-- Compilar a Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -133,7 +83,8 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <!--  Plugin JavaFX  -->
+
+            <!-- Plugin JavaFX -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -142,16 +93,8 @@
                     <mainClass>${main.class}</mainClass>
                 </configuration>
             </plugin>
-            <!--  Pruebas con JUnit 5  -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.plugin.version}</version>
-                <configuration>
-                    <useModulePath>true</useModulePath>
-                </configuration>
-            </plugin>
-            <!--  Fat JAR  -->
+
+            <!-- Fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
