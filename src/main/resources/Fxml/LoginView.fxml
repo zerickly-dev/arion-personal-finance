@@ -50,17 +50,25 @@
                           M16.1,8H7.9V6c0-2.21,1.79-4,4.1-4s4.1,1.79,4.1,4V8z"
                                  styleClass="icon" />
 
-                        <!-- Campo contraseña -->
-                        <PasswordField fx:id="passwordField"
+                        <!-- Campo contraseña (oculto/visible según el estado) -->
+                        <StackPane HBox.hgrow="ALWAYS">
+                            <PasswordField fx:id="passwordField"
                                        promptText="••••••••"
                                        HBox.hgrow="ALWAYS"
                                        prefWidth="250"/>
+                            <TextField fx:id="visiblePasswordField"
+                                      promptText="••••••••"
+                                      HBox.hgrow="ALWAYS"
+                                      prefWidth="250"
+                                      visible="false"/>
+                        </StackPane>
 
                         <!-- Icono del ojo -->
-                        <SVGPath content="M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z
+                        <SVGPath fx:id="eyeIcon" content="M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z
                           M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5s5,2.24,5,5S14.76,17,12,17z
                           M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S13.66,9,12,9z"
-                                 styleClass="icon-eye"/>
+                                 styleClass="icon-eye"
+                                 onMouseClicked="#togglePasswordVisibility"/>
                     </HBox>
                 </VBox>
 
