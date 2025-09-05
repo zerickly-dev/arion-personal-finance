@@ -1,11 +1,14 @@
 package com.arion.Controller;
 
+import com.arion.Model.User;
+import com.arion.Config.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -17,6 +20,9 @@ import javafx.geometry.Rectangle2D;
 import java.io.IOException;
 
 public class LoginViewController {
+
+    @FXML
+    private TextField emailField;
 
     @FXML
     private PasswordField passwordField;
@@ -43,11 +49,13 @@ public class LoginViewController {
     @FXML
     private void initialize() {
         // Sincroniza los campos de contraseña
-        passwordField.textProperty().addListener((observable, oldValue, newValue) ->
-            visiblePasswordField.setText(newValue));
+        if (passwordField != null && visiblePasswordField != null) {
+            passwordField.textProperty().addListener((observable, oldValue, newValue) ->
+                visiblePasswordField.setText(newValue));
 
-        visiblePasswordField.textProperty().addListener((observable, oldValue, newValue) ->
-            passwordField.setText(newValue));
+            visiblePasswordField.textProperty().addListener((observable, oldValue, newValue) ->
+                passwordField.setText(newValue));
+        }
     }
 
     @FXML
@@ -78,7 +86,31 @@ public class LoginViewController {
     }
 
     @FXML
-    private void Session (ActionEvent event) {
+    private void Session(ActionEvent event) {
+        String username = emailField.getText();
+        String password = passwordField.getText();
+
+        // Validar que los campos no estén vacíos
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert("Error", "Por favor ingrese usuario y contraseña");
+            return;
+        }
+
+        // Autenticar usuario
+        User user = User.authenticate(username, password);
+
+        if (user != null) {
+            // Guardar usuario en sesión
+            SessionManager.getInstance().setCurrentUser(user);
+
+            // Navegar al dashboard
+            navigateToDashboard(event);
+        } else {
+            showAlert("Error de autenticación", "Usuario o contraseña incorrectos");
+        }
+    }
+
+    private void navigateToDashboard(ActionEvent event) {
         try {
             // Carga el nuevo FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/DashboardView.fxml"));
@@ -113,7 +145,7 @@ public class LoginViewController {
     }
 
     @FXML
-    private void RegisterView (ActionEvent event) {
+    private void RegisterView(ActionEvent event) {
         try {
             // Carga el nuevo FXML con un nuevo loader cada vez
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/RegisterView.fxml"));
@@ -145,5 +177,13 @@ public class LoginViewController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

@@ -1,6 +1,7 @@
 package com.arion.Controller;
 
 import com.arion.Model.Transaction;
+import com.arion.Config.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,7 +22,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.ResourceBundle;
 
 public class DashboardViewController implements Initializable {
@@ -41,29 +45,67 @@ public class DashboardViewController implements Initializable {
     @FXML
     private Label netBalanceLabel;
 
+    @FXML
+    private Label usernameLabel;
+
     private ObservableList<Transaction> transactions;
+    private DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        loadUserData();
         setupPieChart();
         setupTransactionList();
         updateSummaryLabels();
     }
 
+    private void loadUserData() {
+        // Mostrar el nombre del usuario actual
+        if (usernameLabel != null && SessionManager.getInstance().isLoggedIn()) {
+            usernameLabel.setText("Bienvenido, " + SessionManager.getInstance().getCurrentUsername());
+        }
+
+        // Cargar transacciones del usuario actual
+        int currentUserId = SessionManager.getInstance().getCurrentUserId();
+        if (currentUserId > 0) {
+            List<Transaction> userTransactions = Transaction.getRecentTransactionsByUser(currentUserId, 10);
+            transactions = FXCollections.observableArrayList(userTransactions);
+        } else {
+            transactions = FXCollections.observableArrayList();
+        }
+    }
+
     private void setupPieChart() {
-        ObservableList<PieChart.Data> pieChartData =
-                FXCollections.observableArrayList(
-                        new PieChart.Data("Housing", 1200),
-                        new PieChart.Data("Food", 800),
-                        new PieChart.Data("Transportation", 550),
-                        new PieChart.Data("Entertainment", 300),
-                        new PieChart.Data("Utilities", 200),
-                        new PieChart.Data("Other", 130));
+        int currentUserId = SessionManager.getInstance().getCurrentUserId();
+        if (currentUserId <= 0) {
+            expensesPieChart.setData(FXCollections.observableArrayList());
+            return;
+        }
+
+        // Obtener todas las transacciones del usuario para el gráfico
+        List<Transaction> allTransactions = Transaction.getTransactionsByUser(currentUserId);
+
+        // Filtrar solo gastos y agrupar por categoría
+        Map<String, Double> expensesByCategory = allTransactions.stream()
+                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
+                .collect(Collectors.groupingBy(
+                    Transaction::getCategory,
+                    Collectors.summingDouble(Transaction::getAmount)
+                ));
+
+        // Crear datos para el gráfico de pastel
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+
+        if (expensesByCategory.isEmpty()) {
+            pieChartData.add(new PieChart.Data("Sin gastos", 1));
+        } else {
+            expensesByCategory.forEach((category, amount) ->
+                pieChartData.add(new PieChart.Data(category, amount))
+            );
+        }
 
         expensesPieChart.setData(pieChartData);
-        expensesPieChart.setTitle(null); // Título ya está en la VBox
-
-        // Hacer que el gráfico ocupe todo el espacio disponible
+        expensesPieChart.setTitle(null);
         expensesPieChart.setMinSize(PieChart.USE_PREF_SIZE, PieChart.USE_PREF_SIZE);
         expensesPieChart.setPrefSize(500, 400);
         expensesPieChart.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -71,14 +113,6 @@ public class DashboardViewController implements Initializable {
     }
 
     private void setupTransactionList() {
-        // Crear transacciones de ejemplo usando el modelo unificado
-        transactions = FXCollections.observableArrayList(
-                new Transaction("Monthly Salary", "Salary", LocalDate.now().minusDays(1), 3200.00, Transaction.TransactionType.INCOME, "Regular monthly salary"),
-                new Transaction("Grocery Shopping", "Food", LocalDate.now(), 85.50, Transaction.TransactionType.EXPENSE, "Weekly groceries at supermarket"),
-                new Transaction("Freelance Project", "Freelance", LocalDate.now().minusDays(3), 450.00, Transaction.TransactionType.INCOME, "Web development project"),
-                new Transaction("Gas Station", "Transportation", LocalDate.now().minusDays(2), 65.00, Transaction.TransactionType.EXPENSE, "Car fuel")
-        );
-
         transactionsListView.setItems(transactions);
 
         // Celda personalizada para mostrar cada transacción
@@ -103,18 +137,18 @@ public class DashboardViewController implements Initializable {
 
                     descriptionBox.getChildren().addAll(categoryLabel, dateLabel);
 
-                    HBox amountBox = new HBox();
-                    amountBox.setAlignment(Pos.CENTER_RIGHT);
-                    HBox.setHgrow(amountBox, javafx.scene.layout.Priority.ALWAYS);
-
-                    String amountStr = String.format("%.2f", item.getAmount());
-                    String prefix = item.isIncome() ? "+" : "-";
-                    Label amountLabel = new Label(prefix + "$" + amountStr);
+                    Label amountLabel = new Label(currencyFormat.format(item.getAmount()));
                     amountLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-                    amountLabel.setStyle(item.isIncome() ? "-fx-text-fill: #2E7D32;" : "-fx-text-fill: #C62828;");
 
-                    amountBox.getChildren().add(amountLabel);
-                    hbox.getChildren().addAll(descriptionBox, amountBox);
+                    // Color basado en el tipo de transacción
+                    if (item.getType() == Transaction.TransactionType.INCOME) {
+                        amountLabel.setStyle("-fx-text-fill: #4CAF50;"); // Verde para ingresos
+                    } else {
+                        amountLabel.setStyle("-fx-text-fill: #F44336;"); // Rojo para gastos
+                    }
+
+                    hbox.getChildren().addAll(descriptionBox, amountLabel);
+                    HBox.setHgrow(descriptionBox, javafx.scene.layout.Priority.ALWAYS);
 
                     setGraphic(hbox);
                 }
@@ -122,101 +156,96 @@ public class DashboardViewController implements Initializable {
         });
     }
 
-
-
     private void updateSummaryLabels() {
-        double totalIncome = transactions.stream()
-                .filter(Transaction::isIncome)
-                .mapToDouble(Transaction::getAmount)
-                .sum();
+        int currentUserId = SessionManager.getInstance().getCurrentUserId();
+        if (currentUserId <= 0) {
+            totalIncomeLabel.setText("$0.00");
+            totalExpensesLabel.setText("$0.00");
+            netBalanceLabel.setText("$0.00");
+            return;
+        }
 
-        double totalExpenses = transactions.stream()
-                .filter(t -> !t.isIncome())
-                .mapToDouble(Transaction::getAmount)
-                .sum();
-
+        double totalIncome = Transaction.getTotalIncome(currentUserId);
+        double totalExpenses = Transaction.getTotalExpenses(currentUserId);
         double netBalance = totalIncome - totalExpenses;
 
-        if (totalIncomeLabel != null) {
-            totalIncomeLabel.setText(String.format("$%.2f", totalIncome));
+        totalIncomeLabel.setText(currencyFormat.format(totalIncome));
+        totalExpensesLabel.setText(currencyFormat.format(totalExpenses));
+        netBalanceLabel.setText(currencyFormat.format(netBalance));
+
+        // Cambiar color del balance neto según si es positivo o negativo
+        if (netBalance >= 0) {
+            netBalanceLabel.setStyle("-fx-text-fill: #4CAF50;"); // Verde para positivo
+        } else {
+            netBalanceLabel.setStyle("-fx-text-fill: #F44336;"); // Rojo para negativo
         }
-        if (totalExpensesLabel != null) {
-            totalExpensesLabel.setText(String.format("$%.2f", totalExpenses));
-        }
-        if (netBalanceLabel != null) {
-            netBalanceLabel.setText(String.format("$%.2f", netBalance));
-        }
+    }
+
+    // Método para refrescar los datos (útil cuando se agrega una nueva transacción)
+    public void refreshData() {
+        loadUserData();
+        setupPieChart();
+        transactionsListView.setItems(transactions);
+        updateSummaryLabels();
     }
 
     @FXML
-    private void addIncome() {
-        openTransactionForm(TransactionFormController.FormType.INCOME);
-    }
-
-    @FXML
-    private void addExpense() {
-        openTransactionForm(TransactionFormController.FormType.EXPENSE);
-    }
-
-    private void openTransactionForm(TransactionFormController.FormType formType) {
+    private void openTransactionForm() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/TransactionFormView.fxml"));
             Parent root = loader.load();
 
+            // Obtener el controlador del formulario
             TransactionFormController controller = loader.getController();
-            controller.configureFor(formType);
-            controller.setDashboardController(this); // Pasar referencia del dashboard
+
+            // Configurar callback para refrescar datos cuando se guarde una transacción
+            controller.setOnTransactionSaved(this::refreshData);
 
             Stage stage = new Stage();
-            stage.setTitle(formType == TransactionFormController.FormType.INCOME ? "Add Income" : "Add Expense");
-            stage.setScene(new Scene(root, 500, 650)); // Aumento el tamaño para mostrar todos los elementos correctamente
+            stage.setTitle("Nueva Transacción");
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false); // No permitir cambiar el tamaño
-            stage.centerOnScreen(); // Centrar en la pantalla
-
-            stage.setOnHidden(e -> {
-                // Actualizar la vista cuando se cierre el formulario
-                updateSummaryLabels();
-                transactionsListView.refresh();
-            });
-
-            stage.show();
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.showAndWait();
 
         } catch (IOException e) {
+            System.err.println("Error al cargar formulario de transacción: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // Método público para añadir una nueva transacción (útil para integraciones futuras)
-    public void addTransaction(Transaction transaction) {
-        transactions.add(transaction);
-        updateSummaryLabels();
-    }
-
-    // Método público para obtener todas las transacciones
-    public ObservableList<Transaction> getTransactions() {
-        return transactions;
-    }
-
     @FXML
-    private void onViewReportsClick() {
+    private void openReports() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/ReportsView.fxml"));
             Parent root = loader.load();
 
-            ReportsViewController controller = loader.getController();
-            // Pasar las transacciones actuales al controlador de reportes
-            controller.setTransactions(transactions);
-
             Stage stage = new Stage();
-            stage.setTitle("Transaction Reports");
-            stage.setScene(new Scene(root, 900, 650)); // Tamaño adecuado para los reportes
+            stage.setTitle("Reportes");
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(true); // Permitir cambiar el tamaño
-            stage.centerOnScreen(); // Centrar en la pantalla
+            stage.setScene(new Scene(root, 800, 600));
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            System.err.println("Error al cargar reportes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void logout() {
+        SessionManager.getInstance().logout();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/LoginView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) totalIncomeLabel.getScene().getWindow();
+            stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
+            System.err.println("Error al cerrar sesión: " + e.getMessage());
             e.printStackTrace();
         }
     }
