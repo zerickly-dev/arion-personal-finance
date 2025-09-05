@@ -1,22 +1,31 @@
 package com.arion.Controller;
 
+import com.arion.Model.User;
+import com.arion.Config.SessionManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.SVGPath;
-import javafx.stage.Stage;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 
 import java.io.IOException;
 
 public class RegisterViewController {
+
+    @FXML
+    private TextField nameField;
+
+    @FXML
+    private TextField emailField;
 
     @FXML
     private PasswordField passwordField;
@@ -27,12 +36,10 @@ public class RegisterViewController {
     @FXML
     private SVGPath eyeIcon;
 
-    // Contenido SVG para el ojo abierto (mostrar contraseña)
     private final String EYE_OPEN = "M12,4.5C7,4.5,2.73,7.61,1,12c1.73,4.39,6,7.5,11,7.5s9.27-3.11,11-7.5C21.27,7.61,17,4.5,12,4.5z "
             + "M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5s5,2.24,5,5S14.76,17,12,17z "
             + "M12,9c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S13.66,9,12,9z";
 
-    // Contenido SVG para el ojo cerrado (ocultar contraseña)
     private final String EYE_CLOSED = "M12,7c2.76,0,5,2.24,5,5c0,0.65-0.13,1.26-0.36,1.83l2.92,2.92c1.51-1.26,2.7-2.89,3.43-4.75 "
             + "c-1.73-4.39-6-7.5-11-7.5c-1.4,0-2.74,0.25-3.98,0.7l2.16,2.16C10.74,7.13,11.35,7,12,7z "
             + "M2,4.27l2.28,2.28l0.46,0.46C3.08,8.3,1.78,10.02,1,12c1.73,4.39,6,7.5,11,7.5c1.55,0,3.03-0.3,4.38-0.84l0.42,0.42 "
@@ -43,105 +50,66 @@ public class RegisterViewController {
     @FXML
     private void initialize() {
         // Sincroniza los campos de contraseña
-        passwordField.textProperty().addListener((observable, oldValue, newValue) ->
-            visiblePasswordField.setText(newValue));
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> visiblePasswordField.setText(newVal));
+        visiblePasswordField.textProperty().addListener((obs, oldVal, newVal) -> passwordField.setText(newVal));
 
-        visiblePasswordField.textProperty().addListener((observable, oldValue, newValue) ->
-            passwordField.setText(newValue));
+        // Inicialmente, la contraseña visible está oculta
+        visiblePasswordField.setVisible(false);
+        eyeIcon.setContent(EYE_OPEN);
     }
 
     @FXML
     private void togglePasswordVisibility(MouseEvent event) {
-        // Alterna entre mostrar y ocultar la contraseña
         if (passwordField.isVisible()) {
-            // Cambiar a contraseña visible
             visiblePasswordField.setText(passwordField.getText());
             passwordField.setVisible(false);
             visiblePasswordField.setVisible(true);
             eyeIcon.setContent(EYE_CLOSED);
+            visiblePasswordField.requestFocus();
+            visiblePasswordField.positionCaret(visiblePasswordField.getText().length());
         } else {
-            // Cambiar a contraseña oculta
             passwordField.setText(visiblePasswordField.getText());
             passwordField.setVisible(true);
             visiblePasswordField.setVisible(false);
             eyeIcon.setContent(EYE_OPEN);
-        }
-
-        // Mover el cursor al final del texto
-        if (passwordField.isVisible()) {
-            passwordField.positionCaret(passwordField.getText().length());
             passwordField.requestFocus();
-        } else {
-            visiblePasswordField.positionCaret(visiblePasswordField.getText().length());
-            visiblePasswordField.requestFocus();
+            passwordField.positionCaret(passwordField.getText().length());
         }
     }
 
     @FXML
-    private void Register (ActionEvent event) {
-        try {
-            // Carga el nuevo FXML con un nuevo loader cada vez
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/LoginView.fxml"));
-            Parent nuevaEscena = loader.load();
-
-            // Obtiene la ventana actual
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Obtiene el tamaño de la pantalla
-            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-            // Crea la nueva escena with tamaño igual al de la pantalla
-            Scene scene = new Scene(nuevaEscena, screenBounds.getWidth(), screenBounds.getHeight());
-
-            // Configura la posición y tamaño antes de mostrar
-            stage.setX(screenBounds.getMinX());
-            stage.setY(screenBounds.getMinY());
-            stage.setWidth(screenBounds.getWidth());
-            stage.setHeight(screenBounds.getHeight());
-
-            // Establece la escena
-            stage.setScene(scene);
-
-            // Configura maximizado sin animación
-            stage.setMaximized(true);
-
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void Register(ActionEvent event) {
+        // Validación de campos
+        if (nameField.getText().isEmpty() || emailField.getText().isEmpty() || passwordField.getText().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Campos vacíos");
+            alert.setHeaderText(null);
+            alert.setContentText("Por favor, completa todos los campos.");
+            alert.showAndWait();
+            return;
         }
+
+
+        LoginView(event);
     }
 
     @FXML
-    private void LoginView (ActionEvent event) {
+    private void LoginView(ActionEvent event) {
         try {
-            // Carga el nuevo FXML con un nuevo loader cada vez
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/LoginView.fxml"));
             Parent nuevaEscena = loader.load();
 
-            // Obtiene la ventana actual
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Obtiene el tamaño de la pantalla
             Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-
-            // Crea la nueva escena with tamaño igual al de la pantalla
             Scene scene = new Scene(nuevaEscena, screenBounds.getWidth(), screenBounds.getHeight());
 
-            // Configura la posición y tamaño antes de mostrar
+            stage.setScene(scene);
             stage.setX(screenBounds.getMinX());
             stage.setY(screenBounds.getMinY());
             stage.setWidth(screenBounds.getWidth());
             stage.setHeight(screenBounds.getHeight());
-
-            // Establece la escena
-            stage.setScene(scene);
-
-            // Configura maximizado sin animación
             stage.setMaximized(true);
-
             stage.show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

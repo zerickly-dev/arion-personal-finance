@@ -1,6 +1,7 @@
 package com.arion.Controller;
 
 import com.arion.Model.Transaction;
+import com.arion.Config.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,15 +27,19 @@ public class TransactionFormController {
     @FXML private TextArea noteTextArea;
     @FXML private Button saveButton;
 
-    private Transaction transactionToEdit; // Variable para guardar la transacción que se está editando
+    private Transaction transactionToEdit;
     private FormType currentFormType;
-    private ObservableList<Transaction> transactionsList; // Lista de transacciones del dashboard
-    private DashboardViewController dashboardController; // Referencia al controlador del dashboard
+    private Runnable onTransactionSaved; // Callback para refrescar dashboard
 
     @FXML
     private void initialize() {
         // Establecer fecha por defecto a hoy
         datePicker.setValue(LocalDate.now());
+    }
+
+    // Método para configurar callback de guardado
+    public void setOnTransactionSaved(Runnable callback) {
+        this.onTransactionSaved = callback;
     }
 
     // Método para configurar la UI según sea Ingreso o Gasto
@@ -56,24 +61,12 @@ public class TransactionFormController {
                 "Housing", "Food", "Transportation", "Entertainment", "Utilities", "Healthcare", "Other"));
             saveButton.setText("Save Expense");
         }
-
-    }
-
-    // Método para configurar con lista de transacciones (para nuevas transacciones)
-    public void configureFor(FormType type, ObservableList<Transaction> transactionsList) {
-        this.transactionsList = transactionsList;
-        configureFor(type);
-    }
-
-    // Método para configurar con referencia al dashboard controller
-    public void setDashboardController(DashboardViewController dashboardController) {
-        this.dashboardController = dashboardController;
     }
 
     public void populateForm(Transaction transaction) {
         this.transactionToEdit = transaction;
 
-        // Configura el formulario (Income o Expense) basado en el tipo de transacción
+        // Configura el formulario basado en el tipo de transacción
         configureFor(transaction.getType() == Transaction.TransactionType.INCOME ? FormType.INCOME : FormType.EXPENSE);
 
         // Llena los campos con los datos de la transacción
@@ -101,6 +94,9 @@ public class TransactionFormController {
             Transaction.TransactionType type = currentFormType == FormType.INCOME ?
                 Transaction.TransactionType.INCOME : Transaction.TransactionType.EXPENSE;
 
+            Transaction transaction;
+            boolean success;
+
             if (transactionToEdit != null) {
                 // Actualizar transacción existente
                 transactionToEdit.setAmount(amount);
@@ -108,67 +104,68 @@ public class TransactionFormController {
                 transactionToEdit.setDate(date);
                 transactionToEdit.setNote(note);
                 transactionToEdit.setType(type);
-
-                System.out.println("Transacción actualizada: " + transactionToEdit.toString());
+                success = transactionToEdit.save();
             } else {
                 // Crear nueva transacción
-                Transaction newTransaction = new Transaction(
-                    category, // description = category por ahora
-                    category,
-                    date,
-                    amount,
-                    type,
-                    note
-                );
-
-                // Agregar la nueva transacción a la lista del dashboard
-                if (dashboardController != null) {
-                    dashboardController.addTransaction(newTransaction);
-                } else if (transactionsList != null) {
-                    transactionsList.add(newTransaction);
-                }
-
-                System.out.println("Nueva transacción creada: " + newTransaction.toString());
+                transaction = new Transaction(category, category, date, amount, type, note);
+                transaction.setUserId(SessionManager.getInstance().getCurrentUserId());
+                success = transaction.save();
             }
 
-            closeWindow();
+            if (success) {
+                showAlert("Éxito", "Transacción guardada correctamente", Alert.AlertType.INFORMATION);
+
+                // Llamar callback para refrescar dashboard
+                if (onTransactionSaved != null) {
+                    onTransactionSaved.run();
+                }
+
+                closeWindow();
+            } else {
+                showAlert("Error", "No se pudo guardar la transacción");
+            }
 
         } catch (NumberFormatException e) {
-            showAlert("Error", "Please enter a valid amount.");
+            showAlert("Error", "Por favor ingrese un monto válido");
         } catch (Exception e) {
-            showAlert("Error", "An error occurred while saving the transaction: " + e.getMessage());
+            showAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void cancel() {
+        closeWindow();
     }
 
     private boolean validateForm() {
         if (amountField.getText().trim().isEmpty()) {
-            showAlert("Validation Error", "Please enter an amount.");
-            amountField.requestFocus();
+            showAlert("Error de validación", "El monto es obligatorio");
             return false;
         }
 
         try {
             double amount = Double.parseDouble(amountField.getText());
             if (amount <= 0) {
-                showAlert("Validation Error", "Amount must be greater than 0.");
-                amountField.requestFocus();
+                showAlert("Error de validación", "El monto debe ser mayor que cero");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Please enter a valid number for amount.");
-            amountField.requestFocus();
+            showAlert("Error de validación", "El monto debe ser un número válido");
             return false;
         }
 
-        if (categoryComboBox.getValue() == null || categoryComboBox.getValue().trim().isEmpty()) {
-            showAlert("Validation Error", "Please select a category.");
-            categoryComboBox.requestFocus();
+        if (categoryComboBox.getValue() == null || categoryComboBox.getValue().isEmpty()) {
+            showAlert("Error de validación", "La categoría es obligatoria");
             return false;
         }
 
         if (datePicker.getValue() == null) {
-            showAlert("Validation Error", "Please select a date.");
-            datePicker.requestFocus();
+            showAlert("Error de validación", "La fecha es obligatoria");
+            return false;
+        }
+
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            showAlert("Error de sesión", "No hay usuario autenticado");
             return false;
         }
 
@@ -176,17 +173,17 @@ public class TransactionFormController {
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+        showAlert(title, message, Alert.AlertType.ERROR);
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    @FXML
-    private void cancel() {
-        closeWindow();
-    }
 
     private void closeWindow() {
         Stage stage = (Stage) rootPane.getScene().getWindow();
