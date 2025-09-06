@@ -89,19 +89,27 @@ public class User {
     }
 
     // Método para autenticar usuario
-    public static User authenticate(String username, String password) {
-        String query = "SELECT id, username, password, email, created_at FROM users WHERE username = ?";
+    public static User authenticate(String usernameOrEmail, String password) {
+        String query = "SELECT id, username, password, email, created_at FROM users WHERE username = ? OR email = ?";
+
+        System.out.println("DEBUG - Buscando usuario con: " + usernameOrEmail);
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, username);
+            stmt.setString(1, usernameOrEmail);
+            stmt.setString(2, usernameOrEmail);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                System.out.println("DEBUG - Usuario encontrado en BD: " + rs.getString("username"));
                 String storedPassword = rs.getString("password");
+                System.out.println("DEBUG - Hash almacenado: " + storedPassword);
+
                 User user = new User();
                 String hashedInputPassword = user.hashPassword(password);
+                System.out.println("DEBUG - Hash de contraseña ingresada: " + hashedInputPassword);
+                System.out.println("DEBUG - ¿Hashes coinciden?: " + storedPassword.equals(hashedInputPassword));
 
                 if (storedPassword.equals(hashedInputPassword)) {
                     user.setId(rs.getInt("id"));
@@ -111,13 +119,18 @@ public class User {
                     if (rs.getTimestamp("created_at") != null) {
                         user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                     }
+                    System.out.println("DEBUG - Autenticación exitosa");
                     return user;
                 }
+            } else {
+                System.out.println("DEBUG - No se encontró usuario con: " + usernameOrEmail);
             }
         } catch (Exception e) {
             System.err.println("Error al autenticar usuario: " + e.getMessage());
             e.printStackTrace();
         }
+
+        System.out.println("DEBUG - Autenticación falló");
         return null;
     }
 
