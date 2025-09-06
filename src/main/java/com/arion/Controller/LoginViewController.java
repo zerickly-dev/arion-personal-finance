@@ -96,16 +96,21 @@ public class LoginViewController {
             return;
         }
 
+        System.out.println("Intentando autenticar usuario: " + username);
+        System.out.println("Contraseña ingresada (longitud): " + password.length());
+
         // Autenticar usuario
         User user = User.authenticate(username, password);
 
         if (user != null) {
+            System.out.println("Usuario autenticado exitosamente: " + user.getUsername());
             // Guardar usuario en sesión
             SessionManager.getInstance().setCurrentUser(user);
 
             // Navegar al dashboard
             navigateToDashboard(event);
         } else {
+            System.out.println("Falló la autenticación para usuario: " + username);
             showAlert("Error de autenticación", "Usuario o contraseña incorrectos");
         }
     }
