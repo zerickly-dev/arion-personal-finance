@@ -28,7 +28,6 @@
                                 <Label fx:id="totalIncomeLabel" styleClass="amount-label"/>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                                     <children>
-                                        <SVGPath content="M5 15h14l-7-8z" styleClass="icon-up" />
                                     </children>
                                 </HBox>
                             </children>
@@ -39,7 +38,6 @@
                                 <Label fx:id="totalExpensesLabel" styleClass="amount-label"/>
                                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                                     <children>
-                                        <SVGPath content="M5 9h14l-7 8z" styleClass="icon-down" />
                                     </children>
                                 </HBox>
                             </children>
@@ -65,7 +63,7 @@
                         <VBox spacing="20.0" prefWidth="350.0">
                             <VBox styleClass="card" spacing="10.0">
                                 <children>
-                                    <Label styleClass="section-title" text="Quick Actions" />
+                                    <Label styleClass="section-title" text="Acciones" />
                                     <Button fx:id="addIncomeButton" onAction="#addIncome" styleClass="button-primary" text="Agregar Ingreso" maxWidth="Infinity"/>
                                     <Button fx:id="addExpenseButton" onAction="#addExpense" styleClass="button-secondary" text="Agregar Gasto" maxWidth="Infinity"/>
                                     <Button fx:id="viewReportsButton" styleClass="button-tertiary" text="Ver Reportes" maxWidth="Infinity" onAction="#onViewReportsClick"/>
@@ -73,7 +71,7 @@
                             </VBox>
                             <VBox styleClass="card" spacing="10.0" VBox.vgrow="ALWAYS">
                                 <children>
-                                    <Label styleClass="section-title" text="Recent Transactions" />
+                                    <Label styleClass="section-title" text="Transacciones Recientes" />
                                     <ListView fx:id="transactionsListView" VBox.vgrow="ALWAYS" />
                                 </children>
                             </VBox>

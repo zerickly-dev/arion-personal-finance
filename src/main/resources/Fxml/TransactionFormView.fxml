@@ -14,7 +14,7 @@
 
     <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="form-header">
         <SVGPath fx:id="formIcon" content="M0 0h24v24H0z" styleClass="form-icon" />
-        <Label fx:id="formTitleLabel" styleClass="form-title" text="Transaction Form">
+        <Label fx:id="formTitleLabel" styleClass="form-title">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
@@ -25,7 +25,7 @@
 
     <VBox spacing="20.0">
         <VBox spacing="8.0">
-            <Label text="Amount" styleClass="form-label">
+            <Label text="Monto" styleClass="form-label">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
@@ -34,7 +34,7 @@
                 <padding>
                     <Insets left="10.0" />
                 </padding>
-                <Text text="" styleClass="currency-symbol">
+                <Text styleClass="currency-symbol">
                     <font>
                         <Font size="16.0" />
                     </font>
@@ -44,16 +44,16 @@
         </VBox>
 
         <VBox spacing="8.0">
-            <Label text="Category" styleClass="form-label">
+            <Label text="Categoria" styleClass="form-label">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Label>
-            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" promptText="Select Category" style="-fx-background-radius: 5; -fx-padding: 8;" />
+            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" promptText="Selecciona una Categoria" style="-fx-background-radius: 5; -fx-padding: 8;" />
         </VBox>
 
         <VBox spacing="8.0">
-            <Label text="Date" styleClass="form-label">
+            <Label text="Fecha" styleClass="form-label">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
@@ -62,12 +62,12 @@
         </VBox>
 
         <VBox spacing="8.0">
-            <Label text="Note (Optional)" styleClass="form-label">
+            <Label text="Nota (Opcional)" styleClass="form-label">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Label>
-            <TextArea fx:id="noteTextArea" promptText="Add a note..." wrapText="true" prefHeight="100" style="-fx-background-radius: 5;" />
+            <TextArea fx:id="noteTextArea" promptText="..." wrapText="true" prefHeight="100" style="-fx-background-radius: 5;" />
         </VBox>
     </VBox>
 
@@ -78,12 +78,12 @@
             <Insets top="10.0" />
         </padding>
 
-        <Button onAction="#cancel" text="Cancel" styleClass="button-cancel" style="-fx-background-radius: 5; -fx-padding: 10 15;">
+        <Button onAction="#cancel" text="Cancelar" styleClass="button-cancel" style="-fx-background-radius: 5; -fx-padding: 10 15;">
             <font>
                 <Font size="13.0" />
             </font>
         </Button>
-        <Button fx:id="saveButton" onAction="#save" text="Save" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 10 20;">
+        <Button fx:id="saveButton" onAction="#save"  styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 10 20;">
             <font>
                 <Font name="System Bold" size="13.0" />
             </font>
