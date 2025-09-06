@@ -60,28 +60,20 @@ public class LoginViewController {
 
     @FXML
     private void togglePasswordVisibility(MouseEvent event) {
-        // Alterna entre mostrar y ocultar la contraseña
         if (passwordField.isVisible()) {
-            // Cambiar a contraseña visible
             visiblePasswordField.setText(passwordField.getText());
             passwordField.setVisible(false);
             visiblePasswordField.setVisible(true);
             eyeIcon.setContent(EYE_CLOSED);
+            visiblePasswordField.requestFocus();
+            visiblePasswordField.positionCaret(visiblePasswordField.getText().length());
         } else {
-            // Cambiar a contraseña oculta
             passwordField.setText(visiblePasswordField.getText());
             passwordField.setVisible(true);
             visiblePasswordField.setVisible(false);
             eyeIcon.setContent(EYE_OPEN);
-        }
-
-        // Mover el cursor al final del texto
-        if (passwordField.isVisible()) {
-            passwordField.positionCaret(passwordField.getText().length());
             passwordField.requestFocus();
-        } else {
-            visiblePasswordField.positionCaret(visiblePasswordField.getText().length());
-            visiblePasswordField.requestFocus();
+            passwordField.positionCaret(passwordField.getText().length());
         }
     }
 
