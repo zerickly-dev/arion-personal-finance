@@ -89,8 +89,26 @@ public class RegisterViewController {
             return;
         }
 
+        // Crear nuevo usuario con los datos del formulario
+        User newUser = new User(nameField.getText().trim(), passwordField.getText(), emailField.getText().trim());
 
-        LoginView(event);
+        // Intentar registrar el usuario
+        if (newUser.register()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Registro exitoso");
+            alert.setHeaderText(null);
+            alert.setContentText("Usuario registrado correctamente.");
+            alert.showAndWait();
+
+            // Redirigir al login después del registro exitoso
+            LoginView(event);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error en el registro");
+            alert.setHeaderText(null);
+            alert.setContentText("No se pudo registrar el usuario. El nombre de usuario ya existe o hubo un error en la base de datos.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
