@@ -47,19 +47,19 @@ public class TransactionFormController {
         this.currentFormType = type;
 
         if (type == FormType.INCOME) {
-            formTitleLabel.setText("Add Income");
+            formTitleLabel.setText("Agregar Ingreso");
             formIcon.setContent("M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"); // Flecha hacia arriba
             formIcon.getStyleClass().setAll("icon-form", "icon-up");
             categoryComboBox.setItems(FXCollections.observableArrayList(
-                "Salary", "Bonus", "Freelance", "Investment", "Gift", "Other"));
-            saveButton.setText("Save Income");
+                "Salario", "Bonus", "Freelance", "Inversion", "Regalo", "Otros"));
+            saveButton.setText("Agregar");
         } else {
-            formTitleLabel.setText("Add Expense");
+            formTitleLabel.setText("Agregar Gasto");
             formIcon.setContent("M12 16l-6-6 1.41-1.41L12 13.17l4.59-4.58L18 10z"); // Flecha hacia abajo
             formIcon.getStyleClass().setAll("icon-form", "icon-down");
             categoryComboBox.setItems(FXCollections.observableArrayList(
-                "Housing", "Food", "Transportation", "Entertainment", "Utilities", "Healthcare", "Other"));
-            saveButton.setText("Save Expense");
+                "Hogar", "Comida", "Transporte", "Entretenimiento", "Utiles", "Salud", "Otros"));
+            saveButton.setText("Agregar");
         }
     }
 
