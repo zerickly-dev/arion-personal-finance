@@ -154,13 +154,13 @@ public class ReportsViewController implements Initializable {
 
                 String lowerCaseFilter = newValue.toLowerCase();
 
-                if (transaction.getDescription().toLowerCase().contains(lowerCaseFilter)) {
+                if (transaction.getDescription() != null && transaction.getDescription().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }
-                if (transaction.getCategory().toLowerCase().contains(lowerCaseFilter)) {
+                if (transaction.getCategory() != null && transaction.getCategory().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }
-                if (transaction.getNote().toLowerCase().contains(lowerCaseFilter)) {
+                if (transaction.getNote() != null && transaction.getNote().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }
 
@@ -175,6 +175,12 @@ public class ReportsViewController implements Initializable {
 
     private void updateSummaryLabels() {
         int currentUserId = SessionManager.getInstance().getCurrentUserId();
+
+        // Si los labels de resumen no existen en el FXML, simplemente retornar
+        if (totalIncomeLabel == null || totalExpensesLabel == null || netBalanceLabel == null) {
+            return;
+        }
+
         if (currentUserId <= 0) {
             totalIncomeLabel.setText("$0.00");
             totalExpensesLabel.setText("$0.00");
@@ -263,6 +269,48 @@ public class ReportsViewController implements Initializable {
     private void refreshData() {
         loadUserTransactions();
         updateSummaryLabels();
+    }
+
+    @FXML
+    private void downloadTransactions() {
+        try {
+            // Crear el contenido CSV
+            StringBuilder csvContent = new StringBuilder();
+            csvContent.append("Fecha,Categoría,Descripción,Tipo,Monto,Notas\n");
+
+            // Agregar cada transacción
+            for (Transaction transaction : transactionList) {
+                csvContent.append(String.format("%s,%s,%s,%s,%.2f,%s\n",
+                    transaction.getDate() != null ? transaction.getDate().toString() : "",
+                    transaction.getCategory() != null ? transaction.getCategory().replace(",", ";") : "",
+                    transaction.getDescription() != null ? transaction.getDescription().replace(",", ";") : "",
+                    transaction.getType() == Transaction.TransactionType.INCOME ? "Ingreso" : "Gasto",
+                    transaction.getAmount(),
+                    transaction.getNote() != null ? transaction.getNote().replace(",", ";") : ""
+                ));
+            }
+
+            // Mostrar el contenido en un diálogo (alternativa simple a FileChooser)
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Descargar Transacciones");
+            alert.setHeaderText("Datos CSV generados");
+
+            TextArea textArea = new TextArea(csvContent.toString());
+            textArea.setEditable(false);
+            textArea.setWrapText(true);
+            textArea.setMaxWidth(Double.MAX_VALUE);
+            textArea.setMaxHeight(Double.MAX_VALUE);
+
+            alert.getDialogPane().setExpandableContent(textArea);
+            alert.getDialogPane().setExpanded(true);
+            alert.setContentText("Copia el contenido y guárdalo como archivo .csv");
+
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            showAlert("Error", "Error al generar el archivo de transacciones: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String message) {

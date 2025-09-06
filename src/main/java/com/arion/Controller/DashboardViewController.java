@@ -249,4 +249,46 @@ public class DashboardViewController implements Initializable {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void addIncome() {
+        openTransactionFormWithType(TransactionFormController.FormType.INCOME);
+    }
+
+    @FXML
+    private void addExpense() {
+        openTransactionFormWithType(TransactionFormController.FormType.EXPENSE);
+    }
+
+    @FXML
+    private void onViewReportsClick() {
+        openReports();
+    }
+
+    private void openTransactionFormWithType(TransactionFormController.FormType formType) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/TransactionFormView.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador del formulario
+            TransactionFormController controller = loader.getController();
+
+            // Configurar el tipo de formulario (Ingreso o Gasto)
+            controller.configureFor(formType);
+
+            // Configurar callback para refrescar datos cuando se guarde una transacción
+            controller.setOnTransactionSaved(this::refreshData);
+
+            Stage stage = new Stage();
+            stage.setTitle(formType == TransactionFormController.FormType.INCOME ? "Agregar Ingreso" : "Agregar Gasto");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            System.err.println("Error al cargar formulario de transacción: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
