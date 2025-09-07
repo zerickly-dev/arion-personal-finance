@@ -16,8 +16,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.SVGPath;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+// Importaciones para OpenPDF
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -42,9 +51,8 @@ public class ReportsViewController implements Initializable {
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactions;
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
-    private Runnable dashboardRefreshCallback; // Callback para actualizar el dashboard
+    private Runnable dashboardRefreshCallback;
 
-    // Método para establecer el callback de actualización del dashboard
     public void setDashboardRefreshCallback(Runnable callback) {
         this.dashboardRefreshCallback = callback;
     }
@@ -70,7 +78,6 @@ public class ReportsViewController implements Initializable {
         categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
 
-        // Formato para la fecha
         dateCol.setCellFactory(column -> new TableCell<>() {
             private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             @Override
@@ -84,7 +91,6 @@ public class ReportsViewController implements Initializable {
             }
         });
 
-        // Formato para el monto (con color)
         amountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
         amountCol.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -106,7 +112,6 @@ public class ReportsViewController implements Initializable {
             }
         });
 
-        // Celda para los botones de acción
         actionsCol.setCellFactory(param -> new TableCell<>() {
             private final Button editBtn = createIconButton("M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z", "button-icon-edit");
             private final Button deleteBtn = createIconButton("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z", "button-icon-delete");
@@ -127,7 +132,6 @@ public class ReportsViewController implements Initializable {
                             if (transaction.delete()) {
                                 transactionList.remove(transaction);
                                 updateSummaryLabels();
-                                // También actualizar el dashboard si tenemos la referencia
                                 if (dashboardRefreshCallback != null) {
                                     dashboardRefreshCallback.run();
                                 }
@@ -186,7 +190,6 @@ public class ReportsViewController implements Initializable {
     private void updateSummaryLabels() {
         int currentUserId = SessionManager.getInstance().getCurrentUserId();
 
-        // Si los labels de resumen no existen en el FXML, simplemente retornar
         if (totalIncomeLabel == null || totalExpensesLabel == null || netBalanceLabel == null) {
             return;
         }
@@ -206,7 +209,6 @@ public class ReportsViewController implements Initializable {
         totalExpensesLabel.setText(currencyFormat.format(totalExpenses));
         netBalanceLabel.setText(currencyFormat.format(netBalance));
 
-        // Cambiar color del balance neto
         if (netBalance >= 0) {
             netBalanceLabel.setStyle("-fx-text-fill: #4CAF50;");
         } else {
@@ -234,7 +236,6 @@ public class ReportsViewController implements Initializable {
             controller.setOnTransactionSaved(() -> {
                 loadUserTransactions();
                 updateSummaryLabels();
-                // También actualizar el dashboard si tenemos la referencia
                 if (dashboardRefreshCallback != null) {
                     dashboardRefreshCallback.run();
                 }
@@ -264,7 +265,6 @@ public class ReportsViewController implements Initializable {
             controller.setOnTransactionSaved(() -> {
                 loadUserTransactions();
                 updateSummaryLabels();
-                // También actualizar el dashboard si tenemos la referencia
                 if (dashboardRefreshCallback != null) {
                     dashboardRefreshCallback.run();
                 }
@@ -292,43 +292,153 @@ public class ReportsViewController implements Initializable {
     @FXML
     private void downloadTransactions() {
         try {
-            // Crear el contenido CSV
-            StringBuilder csvContent = new StringBuilder();
-            csvContent.append("Fecha,Categoría,Descripción,Tipo,Monto,Notas\n");
+            // Mostrar FileChooser para seleccionar dónde guardar el PDF
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar Reporte de Transacciones");
+            fileChooser.setInitialFileName("reporte_transacciones.pdf");
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos PDF", "*.pdf")
+            );
 
-            // Agregar cada transacción
-            for (Transaction transaction : transactionList) {
-                csvContent.append(String.format("%s,%s,%s,%s,%.2f,%s\n",
-                    transaction.getDate() != null ? transaction.getDate().toString() : "",
-                    transaction.getCategory() != null ? transaction.getCategory().replace(",", ";") : "",
-                    transaction.getDescription() != null ? transaction.getDescription().replace(",", ";") : "",
-                    transaction.getType() == Transaction.TransactionType.INCOME ? "Ingreso" : "Gasto",
-                    transaction.getAmount(),
-                    transaction.getNote() != null ? transaction.getNote().replace(",", ";") : ""
-                ));
+            Stage stage = (Stage) transactionsTable.getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                generatePDF(file);
+                showAlert("Éxito", "Reporte PDF generado exitosamente en:\n" + file.getAbsolutePath(), Alert.AlertType.INFORMATION);
             }
 
-            // Mostrar el contenido en un diálogo (alternativa simple a FileChooser)
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Descargar Transacciones");
-            alert.setHeaderText("Datos CSV generados");
-
-            TextArea textArea = new TextArea(csvContent.toString());
-            textArea.setEditable(false);
-            textArea.setWrapText(true);
-            textArea.setMaxWidth(Double.MAX_VALUE);
-            textArea.setMaxHeight(Double.MAX_VALUE);
-
-            alert.getDialogPane().setExpandableContent(textArea);
-            alert.getDialogPane().setExpanded(true);
-            alert.setContentText("Copia el contenido y guárdalo como archivo .csv");
-
-            alert.showAndWait();
-
         } catch (Exception e) {
-            showAlert("Error", "Error al generar el archivo de transacciones: " + e.getMessage());
+            showAlert("Error", "Error al generar el reporte PDF: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void generatePDF(File file) throws Exception {
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, new FileOutputStream(file));
+        document.open();
+
+        // Título del documento
+        com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18, com.lowagie.text.Font.BOLD);
+        Paragraph title = new Paragraph("REPORTE DE TRANSACCIONES", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20f);
+        document.add(title);
+
+        // Información del usuario y fecha
+        com.lowagie.text.Font normalFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12, com.lowagie.text.Font.NORMAL);
+        com.lowagie.text.Font boldFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12, com.lowagie.text.Font.BOLD);
+
+        String username = SessionManager.getInstance().getCurrentUsername();
+        Paragraph userInfo = new Paragraph("Usuario: " + username, normalFont);
+        userInfo.setSpacingAfter(10f);
+        document.add(userInfo);
+
+        Paragraph dateInfo = new Paragraph("Fecha de generación: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), normalFont);
+        dateInfo.setSpacingAfter(20f);
+        document.add(dateInfo);
+
+        // Resumen financiero
+        int currentUserId = SessionManager.getInstance().getCurrentUserId();
+        double totalIncome = Transaction.getTotalIncome(currentUserId);
+        double totalExpenses = Transaction.getTotalExpenses(currentUserId);
+        double netBalance = totalIncome - totalExpenses;
+
+        Paragraph summaryTitle = new Paragraph("RESUMEN FINANCIERO", boldFont);
+        summaryTitle.setSpacingAfter(10f);
+        document.add(summaryTitle);
+
+        Paragraph incomeP = new Paragraph("Total Ingresos: " + currencyFormat.format(totalIncome), normalFont);
+        document.add(incomeP);
+
+        Paragraph expensesP = new Paragraph("Total Gastos: " + currencyFormat.format(totalExpenses), normalFont);
+        document.add(expensesP);
+
+        Paragraph balanceP = new Paragraph("Balance Neto: " + currencyFormat.format(netBalance), boldFont);
+        balanceP.setSpacingAfter(20f);
+        document.add(balanceP);
+
+        // Tabla de transacciones
+        Paragraph tableTitle = new Paragraph("DETALLE DE TRANSACCIONES", boldFont);
+        tableTitle.setSpacingAfter(10f);
+        document.add(tableTitle);
+
+        // Crear tabla con 5 columnas
+        PdfPTable table = new PdfPTable(5);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {20f, 25f, 15f, 20f, 20f};
+        table.setWidths(columnWidths);
+
+        // Headers de la tabla
+        addTableHeader(table, "Fecha");
+        addTableHeader(table, "Categoría");
+        addTableHeader(table, "Tipo");
+        addTableHeader(table, "Monto");
+        addTableHeader(table, "Descripción");
+
+        // Agregar datos de transacciones
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        com.lowagie.text.Font cellFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 9, com.lowagie.text.Font.NORMAL);
+
+        for (Transaction transaction : transactionList) {
+            // Fecha
+            String dateStr = transaction.getDate() != null ? transaction.getDate().format(dateFormatter) : "";
+            PdfPCell dateCell = new PdfPCell(new Phrase(dateStr, cellFont));
+            table.addCell(dateCell);
+
+            // Categoría
+            String category = transaction.getCategory() != null ? transaction.getCategory() : "";
+            PdfPCell categoryCell = new PdfPCell(new Phrase(category, cellFont));
+            table.addCell(categoryCell);
+
+            // Tipo
+            String type = transaction.getType() == Transaction.TransactionType.INCOME ? "Ingreso" : "Gasto";
+            PdfPCell typeCell = new PdfPCell(new Phrase(type, cellFont));
+            table.addCell(typeCell);
+
+            // Monto
+            String amountStr;
+            if (transaction.getType() == Transaction.TransactionType.INCOME) {
+                amountStr = "+" + currencyFormat.format(transaction.getAmount());
+            } else {
+                amountStr = "-" + currencyFormat.format(transaction.getAmount());
+            }
+            PdfPCell amountCell = new PdfPCell(new Phrase(amountStr, cellFont));
+            table.addCell(amountCell);
+
+            // Descripción o Nota
+            String description = transaction.getNote() != null ? transaction.getNote() :
+                                (transaction.getDescription() != null ? transaction.getDescription() : "");
+            if (description.length() > 50) {
+                description = description.substring(0, 47) + "...";
+            }
+            PdfPCell descCell = new PdfPCell(new Phrase(description, cellFont));
+            table.addCell(descCell);
+        }
+
+        document.add(table);
+
+        // Pie de página
+        Paragraph footer = new Paragraph("\n\nReporte generado por Arion - Gestor de Finanzas Personales",
+                                        new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 8, com.lowagie.text.Font.ITALIC));
+        footer.setAlignment(Element.ALIGN_CENTER);
+        document.add(footer);
+
+        document.close();
+    }
+
+    private void addTableHeader(PdfPTable table, String headerText) {
+        com.lowagie.text.Font headerFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD);
+        PdfPCell header = new PdfPCell(new Phrase(headerText, headerFont));
+        header.setHorizontalAlignment(Element.ALIGN_CENTER);
+        header.setBackgroundColor(new Color(240, 240, 240));
+        header.setPadding(5);
+        table.addCell(header);
     }
 
     private void showAlert(String title, String message) {
