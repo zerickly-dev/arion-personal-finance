@@ -42,6 +42,12 @@ public class ReportsViewController implements Initializable {
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
     private FilteredList<Transaction> filteredTransactions;
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
+    private Runnable dashboardRefreshCallback; // Callback para actualizar el dashboard
+
+    // Método para establecer el callback de actualización del dashboard
+    public void setDashboardRefreshCallback(Runnable callback) {
+        this.dashboardRefreshCallback = callback;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -121,6 +127,10 @@ public class ReportsViewController implements Initializable {
                             if (transaction.delete()) {
                                 transactionList.remove(transaction);
                                 updateSummaryLabels();
+                                // También actualizar el dashboard si tenemos la referencia
+                                if (dashboardRefreshCallback != null) {
+                                    dashboardRefreshCallback.run();
+                                }
                                 showAlert("Éxito", "Transacción eliminada correctamente", Alert.AlertType.INFORMATION);
                             } else {
                                 showAlert("Error", "No se pudo eliminar la transacción");
@@ -224,6 +234,10 @@ public class ReportsViewController implements Initializable {
             controller.setOnTransactionSaved(() -> {
                 loadUserTransactions();
                 updateSummaryLabels();
+                // También actualizar el dashboard si tenemos la referencia
+                if (dashboardRefreshCallback != null) {
+                    dashboardRefreshCallback.run();
+                }
             });
 
             Stage stage = new Stage();
@@ -250,6 +264,10 @@ public class ReportsViewController implements Initializable {
             controller.setOnTransactionSaved(() -> {
                 loadUserTransactions();
                 updateSummaryLabels();
+                // También actualizar el dashboard si tenemos la referencia
+                if (dashboardRefreshCallback != null) {
+                    dashboardRefreshCallback.run();
+                }
             });
 
             Stage stage = new Stage();

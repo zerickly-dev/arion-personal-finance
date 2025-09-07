@@ -115,6 +115,14 @@ public class DashboardViewController implements Initializable {
     private void setupTransactionList() {
         transactionsListView.setItems(transactions);
 
+        // Configurar doble clic para editar transacciones
+        transactionsListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && transactionsListView.getSelectionModel().getSelectedItem() != null) {
+                Transaction selectedTransaction = transactionsListView.getSelectionModel().getSelectedItem();
+                openEditTransactionForm(selectedTransaction);
+            }
+        });
+
         // Celda personalizada para mostrar cada transacción
         transactionsListView.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -220,6 +228,10 @@ public class DashboardViewController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/ReportsView.fxml"));
             Parent root = loader.load();
 
+            // Obtener el controlador de reportes y pasarle una referencia de este dashboard
+            ReportsViewController reportsController = loader.getController();
+            reportsController.setDashboardRefreshCallback(this::refreshData);
+
             Stage stage = new Stage();
             stage.setTitle("Reportes");
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -288,6 +300,33 @@ public class DashboardViewController implements Initializable {
 
         } catch (IOException e) {
             System.err.println("Error al cargar formulario de transacción: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditTransactionForm(Transaction transaction) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Fxml/TransactionFormView.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador del formulario
+            TransactionFormController controller = loader.getController();
+
+            // Configurar el formulario para edición
+            controller.configureForEdit(transaction);
+
+            // Configurar callback para refrescar datos cuando se guarde la transacción editada
+            controller.setOnTransactionSaved(this::refreshData);
+
+            Stage stage = new Stage();
+            stage.setTitle("Editar Transacción");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            System.err.println("Error al cargar formulario de edición de transacción: " + e.getMessage());
             e.printStackTrace();
         }
     }

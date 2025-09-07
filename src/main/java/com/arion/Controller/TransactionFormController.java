@@ -76,8 +76,13 @@ public class TransactionFormController {
         noteTextArea.setText(transaction.getNote());
 
         // Cambiar título para indicar que es edición
-        formTitleLabel.setText(currentFormType == FormType.INCOME ? "Edit Income" : "Edit Expense");
-        saveButton.setText(currentFormType == FormType.INCOME ? "Update Income" : "Update Expense");
+        formTitleLabel.setText(currentFormType == FormType.INCOME ? "Editar Ingreso" : "Editar Gasto");
+        saveButton.setText("Actualizar");
+    }
+
+    // Método específico para configurar el formulario para edición
+    public void configureForEdit(Transaction transaction) {
+        populateForm(transaction);
     }
 
     @FXML
