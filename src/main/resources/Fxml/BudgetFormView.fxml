@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.arion.Controller.BudgetFormController"
+      spacing="15" alignment="TOP_CENTER"
+      prefWidth="450" prefHeight="400">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label fx:id="titleLabel" text="Nuevo Presupuesto" styleClass="title-label" />
+
+    <GridPane hgap="10" vgap="15">
+        <padding>
+            <Insets top="20"/>
+        </padding>
+
+        <Label text="Categoría:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+        <ComboBox fx:id="categoryComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  maxWidth="Infinity" editable="true" GridPane.hgrow="ALWAYS" />
+
+        <Label text="Mes:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+        <ComboBox fx:id="monthYearComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                  maxWidth="Infinity" GridPane.hgrow="ALWAYS" />
+
+        <Label text="Límite:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+        <TextField fx:id="limitAmountField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+        <Label text="Activo:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+        <CheckBox fx:id="activeCheckbox" GridPane.rowIndex="3" GridPane.columnIndex="1" selected="true" />
+
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="80" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="250" />
+        </columnConstraints>
+    </GridPane>
+
+    <Region VBox.vgrow="ALWAYS" />
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="saveButton" text="Guardar" styleClass="button-primary"
+                minWidth="100" />
+        <Button fx:id="cancelButton" text="Cancelar"
+                minWidth="100" />
+    </HBox>
+</VBox>
