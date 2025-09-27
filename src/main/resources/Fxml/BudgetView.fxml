@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.arion.Controller.BudgetViewController"
+            prefHeight="500.0" prefWidth="800.0">
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label text="Gestión de Presupuestos" styleClass="title-label"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="backButton" text="Volver al Dashboard"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="monthYearComboBox" promptText="Seleccionar mes"/>
+                <Button fx:id="addNewBudgetButton" text="Agregar Nuevo Presupuesto" styleClass="button-primary"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Tabla de presupuestos -->
+            <TableView fx:id="budgetsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="categoryCol" text="Categoría" prefWidth="150"/>
+                    <TableColumn fx:id="limitAmountCol" text="Límite" prefWidth="100"/>
+                    <TableColumn fx:id="spentAmountCol" text="Gastado" prefWidth="100"/>
+                    <TableColumn fx:id="remainingCol" text="Restante" prefWidth="100"/>
+                    <TableColumn fx:id="progressCol" text="Progreso" prefWidth="150"/>
+                    <TableColumn fx:id="actionsCol" text="Acciones" prefWidth="150"/>
+                </columns>
+            </TableView>
+
+            <!-- Alertas de presupuestos excedidos -->
+            <TitledPane text="Alertas de sobrepaso de presupuesto" expanded="true">
+                <ListView fx:id="alertsListView" prefHeight="150" />
+            </TitledPane>
+        </VBox>
+    </center>
+</BorderPane>
