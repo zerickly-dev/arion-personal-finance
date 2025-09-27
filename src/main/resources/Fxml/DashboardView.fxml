@@ -8,17 +8,23 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TitledPane?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="root" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.DashboardViewController">
     <children>
         <VBox layoutX="50.0" layoutY="20.0" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="20.0" AnchorPane.bottomAnchor="20.0">
             <children>
-                <VBox>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
-                        <Label styleClass="header-title" text="Sus Finanzas" />
-                        <Label styleClass="header-subtitle" text="Realize un seguimiento de sus ingresos y gastos con facilidad" />
+                        <VBox>
+                            <children>
+                                <Label styleClass="header-title" text="Sus Finanzas" />
+                                <Label styleClass="header-subtitle" text="Realice un seguimiento de sus ingresos y gastos con facilidad" />
+                            </children>
+                        </VBox>
+                        <Button fx:id="budgetsButton" styleClass="budget-button" text="Gestionar Presupuestos" HBox.hgrow="NEVER" />
                     </children>
-                </VBox>
+                </HBox>
 
                 <HBox spacing="30.0">
                     <children>
@@ -50,6 +56,13 @@
                         </VBox>
                     </children>
                 </HBox>
+
+                <!-- Sección de alertas de presupuesto -->
+                <TitledPane fx:id="budgetAlertPane" text="Alertas de Presupuesto" expanded="true" visible="false" managed="false">
+                    <content>
+                        <ListView fx:id="budgetAlertsListView" prefHeight="100.0" styleClass="budget-alert-list" />
+                    </content>
+                </TitledPane>
 
                 <HBox spacing="30.0" VBox.vgrow="ALWAYS">
                     <children>
