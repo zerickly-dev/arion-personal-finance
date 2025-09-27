@@ -3,7 +3,6 @@ package com.arion.Controller;
 import com.arion.Model.Transaction;
 import com.arion.Config.SessionManager;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -101,6 +100,7 @@ public class TransactionFormController {
 
             Transaction transaction;
             boolean success;
+            int userId = SessionManager.getInstance().getCurrentUserId();
 
             if (transactionToEdit != null) {
                 // Actualizar transacción existente
@@ -109,12 +109,11 @@ public class TransactionFormController {
                 transactionToEdit.setDate(date);
                 transactionToEdit.setNote(note);
                 transactionToEdit.setType(type);
-                success = transactionToEdit.save();
+                success = transactionToEdit.update(); // Usar update() para actualizar una transacción existente
             } else {
                 // Crear nueva transacción
                 transaction = new Transaction(category, category, date, amount, type, note);
-                transaction.setUserId(SessionManager.getInstance().getCurrentUserId());
-                success = transaction.save();
+                success = transaction.save(userId); // Pasar el userId como parámetro
             }
 
             if (success) {
