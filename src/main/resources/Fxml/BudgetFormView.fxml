@@ -1,51 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.arion.Controller.BudgetFormController"
-      spacing="15" alignment="TOP_CENTER"
-      prefWidth="450" prefHeight="400">
+<VBox fx:id="rootPane" alignment="TOP_CENTER" spacing="20.0" styleClass="form-container" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.BudgetFormController">
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
     </padding>
 
-    <Label fx:id="titleLabel" text="Nuevo Presupuesto" styleClass="title-label" />
+    <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="form-header">
+        <SVGPath fx:id="formIcon" content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" styleClass="form-icon" />
+        <Label fx:id="titleLabel" text="Nuevo Presupuesto" styleClass="form-title">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+    </HBox>
 
-    <GridPane hgap="10" vgap="15">
+    <Separator />
+
+    <VBox spacing="20.0">
+        <VBox spacing="8.0">
+            <Label text="Categoría" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" editable="true" promptText="Selecciona una categoría" style="-fx-background-radius: 5; -fx-padding: 8;" />
+        </VBox>
+
+        <VBox spacing="8.0">
+            <Label text="Mes" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <ComboBox fx:id="monthYearComboBox" maxWidth="Infinity" promptText="Selecciona el mes" style="-fx-background-radius: 5; -fx-padding: 8;" />
+        </VBox>
+
+        <VBox spacing="8.0">
+            <Label text="Límite de Presupuesto" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <HBox alignment="CENTER_LEFT" styleClass="input-group" style="-fx-background-color: #f5f5f5; -fx-background-radius: 5;">
+                <padding>
+                    <Insets left="10.0" />
+                </padding>
+                <Label text="$" styleClass="currency-symbol">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="limitAmountField" promptText="0.00" style="-fx-background-color: transparent;" />
+            </HBox>
+        </VBox>
+
+        <VBox spacing="8.0">
+            <Label text="Estado" styleClass="form-label">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <CheckBox fx:id="activeCheckbox" text="Presupuesto activo" selected="true" styleClass="form-checkbox" />
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <Separator />
+
+    <HBox alignment="CENTER_RIGHT" spacing="15.0">
         <padding>
-            <Insets top="20"/>
+            <Insets top="10.0" />
         </padding>
 
-        <Label text="Categoría:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-        <ComboBox fx:id="categoryComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                  maxWidth="Infinity" editable="true" GridPane.hgrow="ALWAYS" />
-
-        <Label text="Mes:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-        <ComboBox fx:id="monthYearComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1"
-                  maxWidth="Infinity" GridPane.hgrow="ALWAYS" />
-
-        <Label text="Límite:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-        <TextField fx:id="limitAmountField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-
-        <Label text="Activo:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-        <CheckBox fx:id="activeCheckbox" GridPane.rowIndex="3" GridPane.columnIndex="1" selected="true" />
-
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="80" />
-            <ColumnConstraints hgrow="ALWAYS" minWidth="250" />
-        </columnConstraints>
-    </GridPane>
-
-    <Region VBox.vgrow="ALWAYS" />
-
-    <HBox spacing="10" alignment="CENTER">
-        <Button fx:id="saveButton" text="Guardar" styleClass="button-primary"
-                minWidth="100" />
-        <Button fx:id="cancelButton" text="Cancelar"
-                minWidth="100" />
+        <Button fx:id="cancelButton" text="Cancelar" styleClass="button-cancel" style="-fx-background-radius: 5; -fx-padding: 10 15;">
+            <font>
+                <Font size="13.0" />
+            </font>
+        </Button>
+        <Button fx:id="saveButton" text="Guardar" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 10 20;">
+            <font>
+                <Font name="System Bold" size="13.0" />
+            </font>
+        </Button>
     </HBox>
+
 </VBox>
