@@ -52,23 +52,12 @@
                 <padding>
                     <Insets left="10.0" />
                 </padding>
-                <Label text="$" styleClass="currency-symbol">
+                <Label text="" styleClass="currency-symbol">
                     <font>
                         <Font size="16.0" />
                     </font>
                 </Label>
                 <TextField fx:id="limitAmountField" promptText="0.00" style="-fx-background-color: transparent;" />
-            </HBox>
-        </VBox>
-
-        <VBox spacing="8.0">
-            <Label text="Estado" styleClass="form-label">
-                <font>
-                    <Font name="System Bold" size="14.0" />
-                </font>
-            </Label>
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <CheckBox fx:id="activeCheckbox" text="Presupuesto activo" selected="true" styleClass="form-checkbox" />
             </HBox>
         </VBox>
     </VBox>
