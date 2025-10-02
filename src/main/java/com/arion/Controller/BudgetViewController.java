@@ -16,6 +16,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -40,7 +41,6 @@ public class BudgetViewController implements Initializable {
     @FXML private TableColumn<Budget, Double> remainingCol;
     @FXML private TableColumn<Budget, ProgressBar> progressCol;
     @FXML private TableColumn<Budget, Budget> actionsCol;
-    @FXML private Button backButton;
     @FXML private Button addNewBudgetButton;
     @FXML private ComboBox<YearMonth> monthYearComboBox;
     @FXML private ListView<String> alertsListView;
@@ -167,19 +167,19 @@ public class BudgetViewController implements Initializable {
 
         actionsCol.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue()));
         actionsCol.setCellFactory(col -> new TableCell<Budget, Budget>() {
-            private final Button editButton = new Button("Editar");
-            private final Button deleteButton = new Button("Eliminar");
+            private final Button editBtn = createIconButton("M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z", "button-icon-edit");
+            private final Button deleteBtn = createIconButton("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z", "button-icon-delete");
+            private final HBox pane = new HBox(10, editBtn, deleteBtn);
 
             {
-                editButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-                deleteButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+                pane.setAlignment(Pos.CENTER);
 
-                editButton.setOnAction(event -> {
+                editBtn.setOnAction(event -> {
                     Budget budget = getTableView().getItems().get(getIndex());
                     showBudgetForm(budget);
                 });
 
-                deleteButton.setOnAction(event -> {
+                deleteBtn.setOnAction(event -> {
                     Budget budget = getTableView().getItems().get(getIndex());
                     confirmAndDeleteBudget(budget);
                 });
@@ -191,10 +191,7 @@ public class BudgetViewController implements Initializable {
                 if (empty || budget == null) {
                     setGraphic(null);
                 } else {
-                    HBox container = new HBox(5);
-                    container.setAlignment(Pos.CENTER);
-                    container.getChildren().addAll(editButton, deleteButton);
-                    setGraphic(container);
+                    setGraphic(pane);
                 }
             }
         });
@@ -236,17 +233,6 @@ public class BudgetViewController implements Initializable {
     }
 
     private void setupButtons() {
-        backButton.setOnAction(event -> {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/Fxml/DashboardView.fxml"));
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) backButton.getScene().getWindow();
-                stage.setScene(scene);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
         addNewBudgetButton.setOnAction(event -> showBudgetForm(null));
     }
 
@@ -339,5 +325,25 @@ public class BudgetViewController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private Button createIconButton(String iconPath, String styleClass) {
+        Button button = new Button();
+        SVGPath icon = new SVGPath();
+        icon.setContent(iconPath);
+        icon.getStyleClass().add("icon");
+        button.setGraphic(icon);
+        button.getStyleClass().addAll("button-icon", styleClass);
+
+        // Agregar tooltip
+        if (styleClass.contains("edit")) {
+            Tooltip tooltip = new Tooltip("Editar presupuesto");
+            button.setTooltip(tooltip);
+        } else if (styleClass.contains("delete")) {
+            Tooltip tooltip = new Tooltip("Eliminar presupuesto");
+            button.setTooltip(tooltip);
+        }
+
+        return button;
     }
 }
