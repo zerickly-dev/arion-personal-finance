@@ -22,7 +22,6 @@
                                 <Label styleClass="header-subtitle" text="Realice un seguimiento de sus ingresos y gastos con facilidad" />
                             </children>
                         </VBox>
-                        <Button fx:id="budgetsButton" styleClass="budget-button" text="Gestionar Presupuestos" HBox.hgrow="NEVER" />
                     </children>
                 </HBox>
 
@@ -79,6 +78,7 @@
                                     <Label styleClass="section-title" text="Acciones" />
                                     <Button fx:id="addIncomeButton" onAction="#addIncome" styleClass="button-primary" text="Agregar Ingreso" maxWidth="Infinity"/>
                                     <Button fx:id="addExpenseButton" onAction="#addExpense" styleClass="button-secondary" text="Agregar Gasto" maxWidth="Infinity"/>
+                                    <Button fx:id="budgetsButton" styleClass="button-tertiary" text="Gestionar Presupuestos" maxWidth="Infinity"/>
                                     <Button fx:id="viewReportsButton" styleClass="button-tertiary" text="Ver Reportes" maxWidth="Infinity" onAction="#onViewReportsClick"/>
                                 </children>
                             </VBox>
