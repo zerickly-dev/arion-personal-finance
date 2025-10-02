@@ -139,6 +139,10 @@ public class Transaction {
         this.userId.set(userId);
     }
 
+    public void setDescription(String description) {
+        this.description.set(description);
+    }
+
     public void setCategory(String category) {
         this.category.set(category);
     }
@@ -156,118 +160,93 @@ public class Transaction {
     }
 
     public void setNote(String note) {
-        this.note.set(note != null ? note : "");
+        this.note.set(note);
     }
 
-    // Métodos de compatibilidad para el DashboardViewController
-    public boolean isIncome() {
-        return type.get() == TransactionType.INCOME;
-    }
-
-    // Método para obtener fecha como string formateado para compatibilidad
+    // Método utilizado por el ListView en el dashboard
     public String getDateString() {
-        LocalDate localDate = date.get();
-        if (localDate != null) {
-            // Convertir a string para compatibilidad
-            if (localDate.equals(LocalDate.now())) {
-                return "Today";
-            } else if (localDate.equals(LocalDate.now().minusDays(1))) {
-                return "Yesterday";
-            } else {
-                return localDate.toString();
-            }
-        }
-        return "Unknown";
+        return getDate() != null ? getDate().toString() : "";
     }
 
-    // Método para guardar la transacción en la base de datos
-    public boolean save() {
-        if (getId() == 0) {
-            return insert();
-        } else {
-            return update();
-        }
-    }
-
-    // Método para insertar nueva transacción
-    private boolean insert() {
-        String query = "INSERT INTO transactions (user_id, description, category, date, amount, type, note) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    // Método para guardar una transacción en la base de datos
+    public boolean save(int userId) {
+        String sql = "INSERT INTO transactions (user_id, description, category, date, amount, type, note) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setInt(1, getUserId());
+            stmt.setInt(1, userId);
             stmt.setString(2, getDescription());
             stmt.setString(3, getCategory());
-            stmt.setDate(4, Date.valueOf(getDate()));
+            stmt.setDate(4, java.sql.Date.valueOf(getDate()));
             stmt.setDouble(5, getAmount());
-            stmt.setString(6, getType().toString());
+            stmt.setString(6, getType().name());
             stmt.setString(7, getNote());
 
-            int rowsAffected = stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
 
-            if (rowsAffected > 0) {
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    setId(generatedKeys.getInt(1));
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        setId(generatedKeys.getInt(1));
+                        setUserId(userId);
+                        return true;
+                    }
                 }
-                return true;
             }
         } catch (Exception e) {
-            System.err.println("Error al insertar transacción: " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
 
-    // Método para actualizar transacción existente
-    private boolean update() {
-        String query = "UPDATE transactions SET description = ?, category = ?, date = ?, amount = ?, type = ?, note = ? WHERE id = ? AND user_id = ?";
+    // Método para actualizar una transacción existente
+    public boolean update() {
+        String sql = "UPDATE transactions SET description = ?, category = ?, date = ?, amount = ?, type = ?, note = ? WHERE id = ? AND user_id = ?";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, getDescription());
             stmt.setString(2, getCategory());
-            stmt.setDate(3, Date.valueOf(getDate()));
+            stmt.setDate(3, java.sql.Date.valueOf(getDate()));
             stmt.setDouble(4, getAmount());
-            stmt.setString(5, getType().toString());
+            stmt.setString(5, getType().name());
             stmt.setString(6, getNote());
             stmt.setInt(7, getId());
             stmt.setInt(8, getUserId());
 
             return stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al actualizar transacción: " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
 
-    // Método para eliminar transacción
+    // Método para eliminar una transacción
     public boolean delete() {
-        if (getId() == 0) return false;
-
-        String query = "DELETE FROM transactions WHERE id = ? AND user_id = ?";
+        String sql = "DELETE FROM transactions WHERE id = ? AND user_id = ?";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, getId());
             stmt.setInt(2, getUserId());
 
             return stmt.executeUpdate() > 0;
         } catch (Exception e) {
-            System.err.println("Error al eliminar transacción: " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
 
     // Método estático para obtener todas las transacciones de un usuario
-    public static List<Transaction> getTransactionsByUser(int userId) {
+    public static List<Transaction> getAll(int userId) {
         List<Transaction> transactions = new ArrayList<>();
-        String query = "SELECT id, user_id, description, category, date, amount, type, note FROM transactions WHERE user_id = ? ORDER BY date DESC";
+        String sql = "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -286,18 +265,18 @@ public class Transaction {
                 transactions.add(transaction);
             }
         } catch (Exception e) {
-            System.err.println("Error al cargar transacciones: " + e.getMessage());
+            e.printStackTrace();
         }
         return transactions;
     }
 
-    // Método estático para obtener transacciones recientes de un usuario
+    // Método para obtener transacciones recientes de un usuario
     public static List<Transaction> getRecentTransactionsByUser(int userId, int limit) {
         List<Transaction> transactions = new ArrayList<>();
-        String query = "SELECT id, user_id, description, category, date, amount, type, note FROM transactions WHERE user_id = ? ORDER BY date DESC, id DESC LIMIT ?";
+        String sql = "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC LIMIT ?";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             stmt.setInt(2, limit);
@@ -317,36 +296,22 @@ public class Transaction {
                 transactions.add(transaction);
             }
         } catch (Exception e) {
-            System.err.println("Error al cargar transacciones recientes: " + e.getMessage());
+            e.printStackTrace();
         }
         return transactions;
     }
 
-    // Método estático para obtener el balance total de un usuario
-    public static double getTotalBalance(int userId) {
-        String query = "SELECT SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END) as balance FROM transactions WHERE user_id = ?";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, userId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getDouble("balance");
-            }
-        } catch (Exception e) {
-            System.err.println("Error al calcular balance: " + e.getMessage());
-        }
-        return 0.0;
+    // Método para obtener todas las transacciones (alias para mantener compatibilidad)
+    public static List<Transaction> getTransactionsByUser(int userId) {
+        return getAll(userId);
     }
 
-    // Método estático para obtener total de ingresos
+    // Método para obtener total de ingresos de un usuario
     public static double getTotalIncome(int userId) {
-        String query = "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE user_id = ? AND type = 'INCOME'";
+        String sql = "SELECT SUM(amount) as total FROM transactions WHERE user_id = ? AND type = 'INCOME'";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -355,17 +320,17 @@ public class Transaction {
                 return rs.getDouble("total");
             }
         } catch (Exception e) {
-            System.err.println("Error al calcular ingresos totales: " + e.getMessage());
+            e.printStackTrace();
         }
         return 0.0;
     }
 
-    // Método estático para obtener total de gastos
+    // Método para obtener total de gastos de un usuario
     public static double getTotalExpenses(int userId) {
-        String query = "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE user_id = ? AND type = 'EXPENSE'";
+        String sql = "SELECT SUM(amount) as total FROM transactions WHERE user_id = ? AND type = 'EXPENSE'";
 
         try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -374,7 +339,35 @@ public class Transaction {
                 return rs.getDouble("total");
             }
         } catch (Exception e) {
-            System.err.println("Error al calcular gastos totales: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    // Método para obtener total de gastos por categoría y mes
+    public static double getTotalExpensesByCategoryAndMonth(int userId, String category, java.time.YearMonth yearMonth) {
+        String sql = "SELECT SUM(amount) as total FROM transactions " +
+                     "WHERE user_id = ? AND category = ? AND type = 'EXPENSE' " +
+                     "AND date BETWEEN ? AND ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            LocalDate startDate = yearMonth.atDay(1); // Primer día del mes
+            LocalDate endDate = yearMonth.atEndOfMonth(); // Último día del mes
+
+            stmt.setInt(1, userId);
+            stmt.setString(2, category);
+            stmt.setDate(3, java.sql.Date.valueOf(startDate));
+            stmt.setDate(4, java.sql.Date.valueOf(endDate));
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return 0.0;
     }
