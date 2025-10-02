@@ -379,7 +379,7 @@ public class DashboardViewController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Gestión de Presupuestos");
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root, 800, 600));
+            stage.setScene(new Scene(root)); // Usar el tamaño definido en el FXML
             stage.showAndWait();
 
             // Refrescar datos cuando se cierre la ventana de presupuestos
