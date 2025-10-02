@@ -25,7 +25,6 @@ public class BudgetFormController implements Initializable {
     @FXML private ComboBox<String> categoryComboBox;
     @FXML private ComboBox<YearMonth> monthYearComboBox;
     @FXML private TextField limitAmountField;
-    @FXML private CheckBox activeCheckbox;
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
 
@@ -68,7 +67,6 @@ public class BudgetFormController implements Initializable {
         categoryComboBox.setValue(budget.getCategory());
         monthYearComboBox.setValue(budget.getPeriodYearMonth());
         limitAmountField.setText(String.valueOf(budget.getLimitAmount()));
-        activeCheckbox.setSelected(budget.isActive());
     }
 
     public void setupForNewBudget(YearMonth defaultMonth) {
@@ -139,13 +137,11 @@ public class BudgetFormController implements Initializable {
             String category = categoryComboBox.getValue();
             YearMonth yearMonth = monthYearComboBox.getValue();
             double limitAmount = Double.parseDouble(limitAmountField.getText());
-            boolean active = activeCheckbox.isSelected();
 
             // Actualizar o crear presupuesto según corresponda
             if (budgetToEdit == null) {
                 // Nuevo presupuesto
                 Budget newBudget = new Budget(category, limitAmount, yearMonth);
-                newBudget.setActive(active);
 
                 if (newBudget.save(SessionManager.getInstance().getCurrentUserId())) {
                     showAlert(Alert.AlertType.INFORMATION, "Éxito", "Presupuesto guardado",
@@ -165,7 +161,6 @@ public class BudgetFormController implements Initializable {
                 budgetToEdit.setCategory(category);
                 budgetToEdit.setPeriodYearMonth(yearMonth);
                 budgetToEdit.setLimitAmount(limitAmount);
-                budgetToEdit.setActive(active);
 
                 if (budgetToEdit.update()) {
                     showAlert(Alert.AlertType.INFORMATION, "Éxito", "Presupuesto actualizado",
