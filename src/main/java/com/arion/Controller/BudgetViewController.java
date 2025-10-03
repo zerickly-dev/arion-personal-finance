@@ -220,7 +220,7 @@ public class BudgetViewController implements Initializable {
         List<Budget> exceededBudgets = Budget.getExceededBudgets(SessionManager.getInstance().getCurrentUserId());
 
         if (exceededBudgets.isEmpty()) {
-            alertsListView.getItems().add("No hay presupuestos excedidos en el mes actual.");
+            alertsListView.getItems().add("No hay presupuestos excedidos.");
         } else {
             for (Budget budget : exceededBudgets) {
                 double spent = Budget.getSpentAmountForCategoryInMonth(

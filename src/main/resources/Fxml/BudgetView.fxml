@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="900.0" prefWidth="1600.0" styleClass="root" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.BudgetViewController">
+<AnchorPane prefHeight="600.0" prefWidth="1250.0" styleClass="root" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.BudgetViewController">
     <children>
         <VBox layoutX="50.0" layoutY="20.0" spacing="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="20.0" AnchorPane.bottomAnchor="20.0">
             <children>
@@ -24,11 +24,6 @@
                                 <Label styleClass="header-subtitle" text="Controla y administra tus presupuestos mensuales" />
                             </children>
                         </VBox>
-                        <Button fx:id="addNewBudgetButton" text="+ Agregar Nuevo Presupuesto" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 12 20;">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                        </Button>
                     </children>
                 </HBox>
 
@@ -45,19 +40,22 @@
                                 </Label>
                                 <TableView fx:id="budgetsTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 5;">
                                     <columns>
-                                        <TableColumn fx:id="categoryCol" text="Categoría" prefWidth="150" />
-                                        <TableColumn fx:id="limitAmountCol" text="Límite" prefWidth="120" />
-                                        <TableColumn fx:id="spentAmountCol" text="Gastado" prefWidth="120" />
-                                        <TableColumn fx:id="remainingCol" text="Restante" prefWidth="120" />
-                                        <TableColumn fx:id="progressCol" text="Progreso" prefWidth="180" />
-                                        <TableColumn fx:id="actionsCol" text="Acciones" prefWidth="120" />
+                                        <TableColumn fx:id="categoryCol" text="Categoría" prefWidth="140" />
+                                        <TableColumn fx:id="limitAmountCol" text="Límite" prefWidth="100" />
+                                        <TableColumn fx:id="spentAmountCol" text="Gastado" prefWidth="100" />
+                                        <TableColumn fx:id="remainingCol" text="Restante" prefWidth="100" />
+                                        <TableColumn fx:id="progressCol" text="Progreso" prefWidth="160" />
+                                        <TableColumn fx:id="actionsCol" text="Acciones" prefWidth="90" />
                                     </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
                                 </TableView>
                             </children>
                         </VBox>
 
                         <!-- Alerts Panel -->
-                        <VBox spacing="20.0" prefWidth="350.0">
+                        <VBox spacing="20.0" prefWidth="300.0">
                             <VBox styleClass="card" spacing="15.0">
                                 <children>
                                     <Label styleClass="section-title" text="Alertas de Presupuesto">
@@ -65,7 +63,7 @@
                                             <Font name="System Bold" size="16.0" />
                                         </font>
                                     </Label>
-                                    <ListView fx:id="alertsListView" prefHeight="200.0" style="-fx-background-radius: 5;" />
+                                    <ListView fx:id="alertsListView" prefHeight="120.0" maxHeight="120.0" style="-fx-background-radius: 5; -fx-focus-traversable: false;" />
                                 </children>
                             </VBox>
 
@@ -105,6 +103,13 @@
                                     </VBox>
                                 </children>
                             </VBox>
+
+                            <!-- Add Budget Button -->
+                            <Button fx:id="addNewBudgetButton" text="+ Agregar Nuevo Presupuesto" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 12 20;" maxWidth="Infinity">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Button>
                         </VBox>
                     </children>
                 </HBox>
