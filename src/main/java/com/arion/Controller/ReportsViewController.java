@@ -220,9 +220,19 @@ public class ReportsViewController implements Initializable {
         Button button = new Button();
         SVGPath icon = new SVGPath();
         icon.setContent(iconPath);
-        icon.getStyleClass().add(styleClass);
+        icon.getStyleClass().add("icon");
         button.setGraphic(icon);
-        button.getStyleClass().add("icon-button");
+        button.getStyleClass().addAll("button-icon", styleClass);
+
+        // Agregar tooltip
+        if (styleClass.contains("edit")) {
+            Tooltip tooltip = new Tooltip("Editar transacción");
+            button.setTooltip(tooltip);
+        } else if (styleClass.contains("delete")) {
+            Tooltip tooltip = new Tooltip("Eliminar transacción");
+            button.setTooltip(tooltip);
+        }
+
         return button;
     }
 
