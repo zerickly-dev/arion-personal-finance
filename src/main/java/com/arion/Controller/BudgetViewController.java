@@ -42,8 +42,10 @@ public class BudgetViewController implements Initializable {
     @FXML private TableColumn<Budget, ProgressBar> progressCol;
     @FXML private TableColumn<Budget, Budget> actionsCol;
     @FXML private Button addNewBudgetButton;
-    @FXML private ComboBox<YearMonth> monthYearComboBox;
     @FXML private ListView<String> alertsListView;
+    @FXML private Label totalBudgetedLabel;
+    @FXML private Label totalSpentLabel;
+    @FXML private Label activeBudgetsLabel;
 
     private ObservableList<Budget> budgetsList = FXCollections.observableArrayList();
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
@@ -54,17 +56,17 @@ public class BudgetViewController implements Initializable {
         // Configurar tabla de presupuestos
         setupTable();
 
-        // Configurar selector de mes/año
-        setupMonthYearSelector();
-
         // Configurar botones
         setupButtons();
 
         // Cargar datos
-        loadBudgetsForMonth(currentYearMonth);
+        loadBudgets();
 
         // Mostrar alertas de presupuestos excedidos
         loadBudgetAlerts();
+
+        // Actualizar resumen
+        updateSummaryLabels();
     }
 
     private void setupTable() {
@@ -199,52 +201,17 @@ public class BudgetViewController implements Initializable {
         budgetsTable.setItems(budgetsList);
     }
 
-    private void setupMonthYearSelector() {
-        // Llenar con 12 meses, desde el actual hacia atrás
-        List<YearMonth> months = new ArrayList<>();
-        YearMonth current = YearMonth.now();
-        for (int i = 0; i < 12; i++) {
-            months.add(current.minusMonths(i));
-        }
-
-        monthYearComboBox.setItems(FXCollections.observableArrayList(months));
-        monthYearComboBox.setValue(current);
-
-        monthYearComboBox.setConverter(new StringConverter<YearMonth>() {
-            @Override
-            public String toString(YearMonth yearMonth) {
-                if (yearMonth != null) {
-                    return yearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
-                }
-                return "";
-            }
-
-            @Override
-            public YearMonth fromString(String string) {
-                return null; // No necesario para este caso
-            }
-        });
-
-        monthYearComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue != null) {
-                loadBudgetsForMonth(newValue);
-            }
-        });
-    }
-
     private void setupButtons() {
         addNewBudgetButton.setOnAction(event -> showBudgetForm(null));
     }
 
-    private void loadBudgetsForMonth(YearMonth yearMonth) {
+    private void loadBudgets() {
         budgetsList.clear();
         int userId = SessionManager.getInstance().getCurrentUserId();
 
-        // Obtenemos todos los presupuestos para el mes seleccionado
+        // Obtenemos todos los presupuestos activos
         for (Budget budget : Budget.getAllActive(userId)) {
-            if (budget.getPeriodYearMonth().equals(yearMonth)) {
-                budgetsList.add(budget);
-            }
+            budgetsList.add(budget);
         }
     }
 
@@ -280,8 +247,9 @@ public class BudgetViewController implements Initializable {
 
             BudgetFormController controller = loader.getController();
             controller.setOnSaveCallback(() -> {
-                loadBudgetsForMonth((YearMonth) monthYearComboBox.getValue());
+                loadBudgets();
                 loadBudgetAlerts();
+                updateSummaryLabels();
             });
 
             if (budget != null) {
@@ -311,8 +279,9 @@ public class BudgetViewController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             if (budget.delete()) {
-                loadBudgetsForMonth((YearMonth) monthYearComboBox.getValue());
+                loadBudgets();
                 loadBudgetAlerts();
+                updateSummaryLabels();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el presupuesto", "Ocurrió un error al intentar eliminar el presupuesto.");
             }
@@ -345,5 +314,24 @@ public class BudgetViewController implements Initializable {
         }
 
         return button;
+    }
+
+    private void updateSummaryLabels() {
+        double totalBudgeted = 0;
+        double totalSpent = 0;
+        int activeBudgets = budgetsList.size();
+
+        for (Budget budget : budgetsList) {
+            totalBudgeted += budget.getLimitAmount();
+            totalSpent += Budget.getSpentAmountForCategoryInMonth(
+                SessionManager.getInstance().getCurrentUserId(),
+                budget.getCategory(),
+                budget.getPeriodYearMonth()
+            );
+        }
+
+        totalBudgetedLabel.setText(currencyFormat.format(totalBudgeted));
+        totalSpentLabel.setText(currencyFormat.format(totalSpent));
+        activeBudgetsLabel.setText(String.valueOf(activeBudgets));
     }
 }
