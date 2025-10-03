@@ -13,7 +13,7 @@
                 <!-- Header Section -->
                 <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
-                        <VBox>
+                        <VBox HBox.hgrow="ALWAYS">
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
@@ -24,32 +24,11 @@
                                 <Label styleClass="header-subtitle" text="Controla y administra tus presupuestos mensuales" />
                             </children>
                         </VBox>
-                    </children>
-                </HBox>
-
-                <!-- Filter and Actions Section -->
-                <HBox spacing="20.0" styleClass="card" style="-fx-padding: 20;">
-                    <children>
-                        <VBox spacing="8.0">
-                            <children>
-                                <Label text="Filtrar por mes" styleClass="form-label">
-                                    <font>
-                                        <Font name="System Bold" size="14.0" />
-                                    </font>
-                                </Label>
-                                <ComboBox fx:id="monthYearComboBox" promptText="Seleccionar mes" style="-fx-background-radius: 5; -fx-padding: 8;" prefWidth="200.0" />
-                            </children>
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <VBox alignment="CENTER_RIGHT">
-                            <children>
-                                <Button fx:id="addNewBudgetButton" text="+ Agregar Nuevo Presupuesto" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 12 20;">
-                                    <font>
-                                        <Font name="System Bold" size="14.0" />
-                                    </font>
-                                </Button>
-                            </children>
-                        </VBox>
+                        <Button fx:id="addNewBudgetButton" text="+ Agregar Nuevo Presupuesto" styleClass="button-primary" style="-fx-background-radius: 5; -fx-padding: 12 20;">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
                     </children>
                 </HBox>
 
@@ -71,7 +50,7 @@
                                         <TableColumn fx:id="spentAmountCol" text="Gastado" prefWidth="120" />
                                         <TableColumn fx:id="remainingCol" text="Restante" prefWidth="120" />
                                         <TableColumn fx:id="progressCol" text="Progreso" prefWidth="180" />
-                                        <TableColumn fx:id="actionsCol" text="Acciones" prefWidth="150" />
+                                        <TableColumn fx:id="actionsCol" text="Acciones" prefWidth="120" />
                                     </columns>
                                 </TableView>
                             </children>
