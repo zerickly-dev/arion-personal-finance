@@ -144,6 +144,27 @@
 }
 .list-cell:last-child { -fx-border-width: 0; }
 
+/* Estilo para ListView sin barra de desplazamiento */
+.no-scroll-bar .scroll-bar:vertical {
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+    -fx-pref-width: 0;
+}
+
+.no-scroll-bar .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+}
+
+.no-scroll-bar .corner {
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
 /* --- Estilos para el Formulario Modal --- */
 .form-container {
     -fx-background-color: #FFFFFF;

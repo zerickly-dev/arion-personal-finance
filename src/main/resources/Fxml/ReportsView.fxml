@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
-<VBox spacing="20.0" styleClass="card" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.ReportsViewController">
+<VBox spacing="20.0" styleClass="card" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.ReportsViewController" prefHeight="500.0">
     <padding>
         <Insets top="20" right="25" bottom="25" left="25" />
     </padding>
@@ -27,7 +27,7 @@
         </HBox>
     </HBox>
 
-    <TableView fx:id="transactionsTable" styleClass="table-view">
+    <TableView fx:id="transactionsTable" styleClass="table-view" prefHeight="350.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="descriptionCol" prefWidth="250.0" text="Descripción" />
             <TableColumn fx:id="categoryCol" prefWidth="150.0" text="Categoría" />
