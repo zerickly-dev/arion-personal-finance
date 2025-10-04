@@ -1,6 +1,7 @@
 package com.arion.Controller;
 
 import com.arion.Model.Transaction;
+import com.arion.Model.Budget;
 import com.arion.Config.SessionManager;
 import com.arion.Utils.AlertUtils;
 import javafx.collections.FXCollections;
@@ -10,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class TransactionFormController {
 
@@ -99,6 +101,13 @@ public class TransactionFormController {
             Transaction.TransactionType type = currentFormType == FormType.INCOME ?
                 Transaction.TransactionType.INCOME : Transaction.TransactionType.EXPENSE;
 
+            // NUEVA FUNCIONALIDAD: Verificar si el gasto va a rebasar un presupuesto
+            if (type == Transaction.TransactionType.EXPENSE) {
+                if (!checkBudgetBeforeSaving(amount, category, date)) {
+                    return; // El usuario canceló la operación
+                }
+            }
+
             Transaction transaction;
             boolean success;
             int userId = SessionManager.getInstance().getCurrentUserId();
@@ -110,11 +119,11 @@ public class TransactionFormController {
                 transactionToEdit.setDate(date);
                 transactionToEdit.setNote(note);
                 transactionToEdit.setType(type);
-                success = transactionToEdit.update(); // Usar update() para actualizar una transacción existente
+                success = transactionToEdit.update();
             } else {
                 // Crear nueva transacción
                 transaction = new Transaction(category, category, date, amount, type, note);
-                success = transaction.save(userId); // Pasar el userId como parámetro
+                success = transaction.save(userId);
             }
 
             if (success) {
@@ -135,6 +144,55 @@ public class TransactionFormController {
         } catch (Exception e) {
             AlertUtils.showErrorAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
         }
+    }
+
+    /**
+     * Verifica si el gasto va a rebasar un presupuesto establecido
+     * @return true si el usuario confirma continuar o no hay presupuesto, false si cancela
+     */
+    private boolean checkBudgetBeforeSaving(double newExpenseAmount, String category, LocalDate date) {
+        int userId = SessionManager.getInstance().getCurrentUserId();
+        YearMonth expenseMonth = YearMonth.from(date);
+
+        // Obtener el presupuesto para esta categoría y mes
+        Budget budget = Budget.getBudgetForCategoryAndMonth(userId, category, expenseMonth);
+
+        if (budget == null) {
+            return true; // No hay presupuesto definido, continuar normalmente
+        }
+
+        // Calcular el gasto actual en esta categoría
+        double currentSpent = Budget.getSpentAmountForCategoryInMonth(userId, category, expenseMonth);
+
+        // Calcular el gasto total después de agregar esta transacción
+        double totalAfterExpense = currentSpent + newExpenseAmount;
+
+        // Verificar si se va a rebasar el presupuesto
+        if (totalAfterExpense > budget.getLimitAmount()) {
+            double excess = totalAfterExpense - budget.getLimitAmount();
+
+            String message = String.format(
+                "⚠️ ADVERTENCIA DE PRESUPUESTO\n\n" +
+                "Esta operación hará que rebase el presupuesto establecido para '%s'.\n\n" +
+                "Presupuesto límite: $%.2f\n" +
+                "Gastado actual: $%.2f\n" +
+                "Nuevo gasto: $%.2f\n" +
+                "Total después: $%.2f\n" +
+                "Excedente: $%.2f\n\n" +
+                "¿Desea continuar de todos modos?",
+                category,
+                budget.getLimitAmount(),
+                currentSpent,
+                newExpenseAmount,
+                totalAfterExpense,
+                excess
+            );
+
+            // Mostrar alerta de confirmación
+            return AlertUtils.showConfirmationAlert("Presupuesto Excedido", message);
+        }
+
+        return true; // No se rebasa el presupuesto, continuar normalmente
     }
 
     @FXML
