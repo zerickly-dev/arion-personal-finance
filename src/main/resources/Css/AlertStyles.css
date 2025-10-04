@@ -1,0 +1,215 @@
+/* Estilos para ventanas de alerta personalizadas - Diseño Moderno */
+
+/* Estilos base para el DialogPane */
+.dialog-pane {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 8);
+    -fx-padding: 30px;
+    -fx-pref-width: 400px;
+    -fx-min-width: 350px;
+    -fx-max-width: 450px;
+}
+
+/* Eliminar header panel por defecto */
+.dialog-pane .header-panel {
+    -fx-opacity: 0;
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+}
+
+/* Contenido del diálogo */
+.dialog-pane .content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 20px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+/* Estilo para el contenido de texto */
+.dialog-pane .content .label {
+    -fx-font-family: 'Arial';
+    -fx-font-size: 16px;
+    -fx-text-fill: #333333;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+    -fx-line-spacing: 4px;
+    -fx-padding: 20px 0;
+}
+
+/* Área de botones */
+.dialog-pane .button-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 15px;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+}
+
+/* Container de botones */
+.dialog-pane .button-bar .container {
+    -fx-spacing: 15px;
+    -fx-alignment: center;
+}
+
+/* Estilos base para botones */
+.dialog-pane .button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 25px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-min-width: 120px;
+    -fx-pref-width: 120px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+}
+
+/* Botón primario (OK, Sí, Confirmar) */
+.dialog-pane .button:default {
+    -fx-background-color: #007BFF;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: #0056b3;
+    -fx-effect: dropshadow(gaussian, rgba(0,123,255,0.4), 6, 0, 0, 3);
+}
+
+.dialog-pane .button:default:pressed {
+    -fx-background-color: #004085;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+/* Botón secundario (Cancel, No) */
+.dialog-pane .button:cancel {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #333333;
+    -fx-border-color: #DDD;
+    -fx-border-width: 1px;
+}
+
+.dialog-pane .button:cancel:hover {
+    -fx-background-color: #F2F2F2;
+    -fx-border-color: #CCC;
+}
+
+.dialog-pane .button:cancel:pressed {
+    -fx-background-color: #E6E6E6;
+}
+
+/* === ALERTAS ESPECÍFICAS CON ICONOS === */
+
+/* Alerta de Éxito */
+.success-alert {
+    -fx-background-color: #FFFFFF;
+}
+
+.success-alert .content::before {
+    -fx-background-color: #28A745;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+}
+
+.success-alert .content .label {
+    -fx-text-fill: #155724;
+}
+
+.success-alert .button:default {
+    -fx-background-color: #28A745;
+}
+
+.success-alert .button:default:hover {
+    -fx-background-color: #218838;
+}
+
+/* Alerta de Error */
+.error-alert {
+    -fx-background-color: #FFFFFF;
+}
+
+.error-alert .content .label {
+    -fx-text-fill: #721C24;
+}
+
+.error-alert .button:default {
+    -fx-background-color: #DC3545;
+}
+
+.error-alert .button:default:hover {
+    -fx-background-color: #C82333;
+}
+
+/* Alerta de Advertencia */
+.warning-alert {
+    -fx-background-color: #FFFFFF;
+}
+
+.warning-alert .content .label {
+    -fx-text-fill: #856404;
+}
+
+.warning-alert .button:default {
+    -fx-background-color: #FFC107;
+    -fx-text-fill: #212529;
+}
+
+.warning-alert .button:default:hover {
+    -fx-background-color: #E0A800;
+}
+
+/* Alerta de Confirmación */
+.confirmation-alert {
+    -fx-background-color: #FFFFFF;
+}
+
+.confirmation-alert .content .label {
+    -fx-text-fill: #0C5460;
+}
+
+.confirmation-alert .button:default {
+    -fx-background-color: #17A2B8;
+}
+
+.confirmation-alert .button:default:hover {
+    -fx-background-color: #138496;
+}
+
+/* Eliminar gráficos por defecto de JavaFX */
+.dialog-pane .graphic-container {
+    -fx-opacity: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
+/* Efectos de transición suaves */
+.dialog-pane .button {
+    -fx-transition: all 0.2s ease;
+}
+
+/* Mejoras en la tipografía */
+.dialog-pane {
+    -fx-font-family: 'Arial', 'Segoe UI', sans-serif;
+}
+
+/* Responsividad */
+.dialog-pane .content {
+    -fx-max-width: 350px;
+    -fx-pref-width: 350px;
+}
+
+
+
+

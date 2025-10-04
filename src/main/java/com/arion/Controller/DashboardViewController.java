@@ -16,7 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Button;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -41,8 +40,6 @@ public class DashboardViewController implements Initializable {
     @FXML private Label netBalanceLabel;
     @FXML private Label usernameLabel;
     @FXML private Button budgetsButton;
-    @FXML private TitledPane budgetAlertPane;
-    @FXML private ListView<String> budgetAlertsListView;
 
     private ObservableList<Transaction> transactions;
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0.00");
@@ -53,7 +50,6 @@ public class DashboardViewController implements Initializable {
         setupPieChart();
         setupTransactionList();
         updateSummaryLabels();
-        setupBudgetAlerts();
 
         // Configurar el botón de presupuestos
         budgetsButton.setOnAction(event -> openBudgetManager());
@@ -189,47 +185,12 @@ public class DashboardViewController implements Initializable {
         }
     }
 
-    private void setupBudgetAlerts() {
-        int currentUserId = SessionManager.getInstance().getCurrentUserId();
-        YearMonth currentMonth = YearMonth.now();
-
-        // Obtener presupuestos del usuario para el mes actual
-        List<Budget> userBudgets = Budget.getCurrentMonthBudgets(currentUserId);
-
-        // Configurar alertas de presupuesto
-        if (userBudgets.isEmpty()) {
-            budgetAlertPane.setVisible(false);
-            budgetAlertPane.setManaged(false);
-        } else {
-            budgetAlertPane.setVisible(true);
-            budgetAlertPane.setManaged(true);
-            budgetAlertPane.setText("Alertas de Presupuesto");
-            ObservableList<String> alerts = FXCollections.observableArrayList();
-
-            for (Budget budget : userBudgets) {
-                double totalExpenses = Transaction.getTotalExpensesByCategoryAndMonth(currentUserId, budget.getCategory(), currentMonth);
-                if (totalExpenses > budget.getLimitAmount()) {
-                    alerts.add("Te has excedido en " + budget.getCategory() + ": " + currencyFormat.format(totalExpenses - budget.getLimitAmount()) + " sobre el límite.");
-                } else if (totalExpenses > budget.getLimitAmount() * 0.8) {
-                    alerts.add("Estás cerca del límite en " + budget.getCategory() + ": " + currencyFormat.format(budget.getLimitAmount() - totalExpenses) + " restantes.");
-                }
-            }
-
-            if (alerts.isEmpty()) {
-                alerts.add("No tienes alertas de presupuesto para este mes.");
-            }
-
-            budgetAlertsListView.setItems(alerts);
-        }
-    }
-
     // Método para refrescar los datos (útil cuando se agrega una nueva transacción)
     public void refreshData() {
         loadUserData();
         setupPieChart();
         transactionsListView.setItems(transactions);
         updateSummaryLabels();
-        setupBudgetAlerts();
     }
 
     @FXML
@@ -381,9 +342,6 @@ public class DashboardViewController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root)); // Usar el tamaño definido en el FXML
             stage.showAndWait();
-
-            // Refrescar datos cuando se cierre la ventana de presupuestos
-            setupBudgetAlerts();
 
         } catch (IOException e) {
             System.err.println("Error al cargar gestión de presupuestos: " + e.getMessage());

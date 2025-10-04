@@ -1,7 +1,9 @@
 package com.arion.Controller;
 
 import com.arion.Model.Transaction;
+import com.arion.Model.Budget;
 import com.arion.Config.SessionManager;
+import com.arion.Utils.AlertUtils;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -9,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 public class TransactionFormController {
 
@@ -98,6 +101,13 @@ public class TransactionFormController {
             Transaction.TransactionType type = currentFormType == FormType.INCOME ?
                 Transaction.TransactionType.INCOME : Transaction.TransactionType.EXPENSE;
 
+            // NUEVA FUNCIONALIDAD: Verificar si el gasto va a rebasar un presupuesto
+            if (type == Transaction.TransactionType.EXPENSE) {
+                if (!checkBudgetBeforeSaving(amount, category, date)) {
+                    return; // El usuario canceló la operación
+                }
+            }
+
             Transaction transaction;
             boolean success;
             int userId = SessionManager.getInstance().getCurrentUserId();
@@ -109,15 +119,15 @@ public class TransactionFormController {
                 transactionToEdit.setDate(date);
                 transactionToEdit.setNote(note);
                 transactionToEdit.setType(type);
-                success = transactionToEdit.update(); // Usar update() para actualizar una transacción existente
+                success = transactionToEdit.update();
             } else {
                 // Crear nueva transacción
                 transaction = new Transaction(category, category, date, amount, type, note);
-                success = transaction.save(userId); // Pasar el userId como parámetro
+                success = transaction.save(userId);
             }
 
             if (success) {
-                showAlert("Éxito", "Transacción guardada correctamente", Alert.AlertType.INFORMATION);
+                AlertUtils.showSuccessAlert("Éxito", "Transacción guardada correctamente");
 
                 // Llamar callback para refrescar dashboard
                 if (onTransactionSaved != null) {
@@ -126,14 +136,63 @@ public class TransactionFormController {
 
                 closeWindow();
             } else {
-                showAlert("Error", "No se pudo guardar la transacción");
+                AlertUtils.showErrorAlert("Error", "No se pudo guardar la transacción");
             }
 
         } catch (NumberFormatException e) {
-            showAlert("Error", "Por favor ingrese un monto válido");
+            AlertUtils.showErrorAlert("Error", "Por favor ingrese un monto válido");
         } catch (Exception e) {
-            showAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
+            AlertUtils.showErrorAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
         }
+    }
+
+    /**
+     * Verifica si el gasto va a rebasar un presupuesto establecido
+     * @return true si el usuario confirma continuar o no hay presupuesto, false si cancela
+     */
+    private boolean checkBudgetBeforeSaving(double newExpenseAmount, String category, LocalDate date) {
+        int userId = SessionManager.getInstance().getCurrentUserId();
+        YearMonth expenseMonth = YearMonth.from(date);
+
+        // Obtener el presupuesto para esta categoría y mes
+        Budget budget = Budget.getBudgetForCategoryAndMonth(userId, category, expenseMonth);
+
+        if (budget == null) {
+            return true; // No hay presupuesto definido, continuar normalmente
+        }
+
+        // Calcular el gasto actual en esta categoría
+        double currentSpent = Budget.getSpentAmountForCategoryInMonth(userId, category, expenseMonth);
+
+        // Calcular el gasto total después de agregar esta transacción
+        double totalAfterExpense = currentSpent + newExpenseAmount;
+
+        // Verificar si se va a rebasar el presupuesto
+        if (totalAfterExpense > budget.getLimitAmount()) {
+            double excess = totalAfterExpense - budget.getLimitAmount();
+
+            String message = String.format(
+                "⚠️ ADVERTENCIA DE PRESUPUESTO\n\n" +
+                "Esta operación hará que rebase el presupuesto establecido para '%s'.\n\n" +
+                "Presupuesto límite: $%.2f\n" +
+                "Gastado actual: $%.2f\n" +
+                "Nuevo gasto: $%.2f\n" +
+                "Total después: $%.2f\n" +
+                "Excedente: $%.2f\n\n" +
+                "¿Desea continuar de todos modos?",
+                category,
+                budget.getLimitAmount(),
+                currentSpent,
+                newExpenseAmount,
+                totalAfterExpense,
+                excess
+            );
+
+            // Mostrar alerta de confirmación
+            return AlertUtils.showConfirmationAlert("Presupuesto Excedido", message);
+        }
+
+        return true; // No se rebasa el presupuesto, continuar normalmente
     }
 
     @FXML
@@ -143,49 +202,37 @@ public class TransactionFormController {
 
     private boolean validateForm() {
         if (amountField.getText().trim().isEmpty()) {
-            showAlert("Error de validación", "El monto es obligatorio");
+            AlertUtils.showErrorAlert("Error de validación", "El monto es obligatorio");
             return false;
         }
 
         try {
             double amount = Double.parseDouble(amountField.getText());
             if (amount <= 0) {
-                showAlert("Error de validación", "El monto debe ser mayor que cero");
+                AlertUtils.showErrorAlert("Error de validación", "El monto debe ser mayor que cero");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Error de validación", "El monto debe ser un número válido");
+            AlertUtils.showErrorAlert("Error de validación", "El monto debe ser un número válido");
             return false;
         }
 
         if (categoryComboBox.getValue() == null || categoryComboBox.getValue().isEmpty()) {
-            showAlert("Error de validación", "La categoría es obligatoria");
+            AlertUtils.showErrorAlert("Error de validación", "La categoría es obligatoria");
             return false;
         }
 
         if (datePicker.getValue() == null) {
-            showAlert("Error de validación", "La fecha es obligatoria");
+            AlertUtils.showErrorAlert("Error de validación", "La fecha es obligatoria");
             return false;
         }
 
         if (!SessionManager.getInstance().isLoggedIn()) {
-            showAlert("Error de sesión", "No hay usuario autenticado");
+            AlertUtils.showErrorAlert("Error de sesión", "No hay usuario autenticado");
             return false;
         }
 
         return true;
-    }
-
-    private void showAlert(String title, String message) {
-        showAlert(title, message, Alert.AlertType.ERROR);
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
 

@@ -2,6 +2,7 @@ package com.arion.Controller;
 
 import com.arion.Model.Transaction;
 import com.arion.Config.SessionManager;
+import com.arion.Utils.AlertUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -19,14 +20,16 @@ import javafx.scene.shape.SVGPath;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-// Importaciones para OpenPDF
+
+// Importaciones para OpenPDF (reemplazar iText)
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import java.awt.Color;
-import java.io.File;
+
 import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -121,26 +124,19 @@ public class ReportsViewController implements Initializable {
                 pane.setAlignment(Pos.CENTER);
                 deleteBtn.setOnAction(event -> {
                     Transaction transaction = getTableView().getItems().get(getIndex());
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                        "¿Estás seguro de que quieres eliminar esta transacción?",
-                        ButtonType.YES, ButtonType.NO);
-                    alert.setTitle("Confirmar eliminación");
-                    alert.setHeaderText(null);
-
-                    alert.showAndWait().ifPresent(response -> {
-                        if (response == ButtonType.YES) {
-                            if (transaction.delete()) {
-                                transactionList.remove(transaction);
-                                updateSummaryLabels();
-                                if (dashboardRefreshCallback != null) {
-                                    dashboardRefreshCallback.run();
-                                }
-                                showAlert("Éxito", "Transacción eliminada correctamente", Alert.AlertType.INFORMATION);
-                            } else {
-                                showAlert("Error", "No se pudo eliminar la transacción");
+                    if (AlertUtils.showConfirmationAlert("Confirmar eliminación",
+                        "¿Estás seguro de que quieres eliminar esta transacción?")) {
+                        if (transaction.delete()) {
+                            transactionList.remove(transaction);
+                            updateSummaryLabels();
+                            if (dashboardRefreshCallback != null) {
+                                dashboardRefreshCallback.run();
                             }
+                            AlertUtils.showSuccessAlert("Éxito", "Transacción eliminada correctamente");
+                        } else {
+                            AlertUtils.showErrorAlert("Error", "No se pudo eliminar la transacción");
                         }
-                    });
+                    }
                 });
 
                 editBtn.setOnAction(event -> {
@@ -220,9 +216,19 @@ public class ReportsViewController implements Initializable {
         Button button = new Button();
         SVGPath icon = new SVGPath();
         icon.setContent(iconPath);
-        icon.getStyleClass().add(styleClass);
+        icon.getStyleClass().add("icon");
         button.setGraphic(icon);
-        button.getStyleClass().add("icon-button");
+        button.getStyleClass().addAll("button-icon", styleClass);
+
+        // Agregar tooltip
+        if (styleClass.contains("edit")) {
+            Tooltip tooltip = new Tooltip("Editar transacción");
+            button.setTooltip(tooltip);
+        } else if (styleClass.contains("delete")) {
+            Tooltip tooltip = new Tooltip("Eliminar transacción");
+            button.setTooltip(tooltip);
+        }
+
         return button;
     }
 
@@ -305,11 +311,11 @@ public class ReportsViewController implements Initializable {
 
             if (file != null) {
                 generatePDF(file);
-                showAlert("Éxito", "Reporte PDF generado exitosamente en:\n" + file.getAbsolutePath(), Alert.AlertType.INFORMATION);
+                AlertUtils.showSuccessAlert("Éxito", "Reporte PDF generado exitosamente en:\n" + file.getAbsolutePath());
             }
 
         } catch (Exception e) {
-            showAlert("Error", "Error al generar el reporte PDF: " + e.getMessage());
+            AlertUtils.showErrorAlert("Error", "Error al generar el reporte PDF: " + e.getMessage());
             e.printStackTrace();
         }
     }
