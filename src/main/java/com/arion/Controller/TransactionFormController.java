@@ -2,6 +2,7 @@ package com.arion.Controller;
 
 import com.arion.Model.Transaction;
 import com.arion.Config.SessionManager;
+import com.arion.Utils.AlertUtils;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -117,7 +118,7 @@ public class TransactionFormController {
             }
 
             if (success) {
-                showAlert("Éxito", "Transacción guardada correctamente", Alert.AlertType.INFORMATION);
+                AlertUtils.showSuccessAlert("Éxito", "Transacción guardada correctamente");
 
                 // Llamar callback para refrescar dashboard
                 if (onTransactionSaved != null) {
@@ -126,13 +127,13 @@ public class TransactionFormController {
 
                 closeWindow();
             } else {
-                showAlert("Error", "No se pudo guardar la transacción");
+                AlertUtils.showErrorAlert("Error", "No se pudo guardar la transacción");
             }
 
         } catch (NumberFormatException e) {
-            showAlert("Error", "Por favor ingrese un monto válido");
+            AlertUtils.showErrorAlert("Error", "Por favor ingrese un monto válido");
         } catch (Exception e) {
-            showAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
+            AlertUtils.showErrorAlert("Error", "Ocurrió un error al guardar la transacción: " + e.getMessage());
         }
     }
 
@@ -143,49 +144,37 @@ public class TransactionFormController {
 
     private boolean validateForm() {
         if (amountField.getText().trim().isEmpty()) {
-            showAlert("Error de validación", "El monto es obligatorio");
+            AlertUtils.showErrorAlert("Error de validación", "El monto es obligatorio");
             return false;
         }
 
         try {
             double amount = Double.parseDouble(amountField.getText());
             if (amount <= 0) {
-                showAlert("Error de validación", "El monto debe ser mayor que cero");
+                AlertUtils.showErrorAlert("Error de validación", "El monto debe ser mayor que cero");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Error de validación", "El monto debe ser un número válido");
+            AlertUtils.showErrorAlert("Error de validación", "El monto debe ser un número válido");
             return false;
         }
 
         if (categoryComboBox.getValue() == null || categoryComboBox.getValue().isEmpty()) {
-            showAlert("Error de validación", "La categoría es obligatoria");
+            AlertUtils.showErrorAlert("Error de validación", "La categoría es obligatoria");
             return false;
         }
 
         if (datePicker.getValue() == null) {
-            showAlert("Error de validación", "La fecha es obligatoria");
+            AlertUtils.showErrorAlert("Error de validación", "La fecha es obligatoria");
             return false;
         }
 
         if (!SessionManager.getInstance().isLoggedIn()) {
-            showAlert("Error de sesión", "No hay usuario autenticado");
+            AlertUtils.showErrorAlert("Error de sesión", "No hay usuario autenticado");
             return false;
         }
 
         return true;
-    }
-
-    private void showAlert(String title, String message) {
-        showAlert(title, message, Alert.AlertType.ERROR);
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
 
