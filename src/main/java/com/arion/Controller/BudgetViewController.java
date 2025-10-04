@@ -3,6 +3,7 @@ package com.arion.Controller;
 import com.arion.Model.Budget;
 import com.arion.Model.Transaction;
 import com.arion.Config.SessionManager;
+import com.arion.Utils.AlertUtils;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -266,34 +267,22 @@ public class BudgetViewController implements Initializable {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Error al abrir el formulario de presupuesto", e.getMessage());
+            AlertUtils.showErrorAlert("Error", "Error al abrir el formulario de presupuesto: " + e.getMessage());
         }
     }
 
     private void confirmAndDeleteBudget(Budget budget) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmar eliminación");
-        alert.setHeaderText("¿Estás seguro que deseas eliminar este presupuesto?");
-        alert.setContentText("Esta acción no se puede deshacer.");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (AlertUtils.showConfirmationAlert("Confirmar eliminación",
+            "¿Estás seguro que deseas eliminar este presupuesto?\nEsta acción no se puede deshacer.")) {
             if (budget.delete()) {
                 loadBudgets();
                 loadBudgetAlerts();
                 updateSummaryLabels();
+                AlertUtils.showSuccessAlert("Éxito", "Presupuesto eliminado correctamente");
             } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el presupuesto", "Ocurrió un error al intentar eliminar el presupuesto.");
+                AlertUtils.showErrorAlert("Error", "No se pudo eliminar el presupuesto. Ocurrió un error al intentar eliminar el presupuesto.");
             }
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     private Button createIconButton(String iconPath, String styleClass) {
