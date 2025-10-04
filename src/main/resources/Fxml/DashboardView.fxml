@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TitledPane?>
 
 <AnchorPane prefHeight="720.0" prefWidth="1280.0" styleClass="root" stylesheets="@/Css/Dashbord.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.arion.Controller.DashboardViewController">
     <children>
@@ -56,13 +55,6 @@
                     </children>
                 </HBox>
 
-                <!-- Sección de alertas de presupuesto -->
-                <TitledPane fx:id="budgetAlertPane" text="Alertas de Presupuesto" expanded="true" visible="false" managed="false">
-                    <content>
-                        <ListView fx:id="budgetAlertsListView" prefHeight="100.0" styleClass="budget-alert-list" />
-                    </content>
-                </TitledPane>
-
                 <HBox spacing="30.0" VBox.vgrow="ALWAYS">
                     <children>
                         <VBox styleClass="card" HBox.hgrow="ALWAYS">
@@ -85,7 +77,7 @@
                             <VBox styleClass="card" spacing="10.0" VBox.vgrow="ALWAYS">
                                 <children>
                                     <Label styleClass="section-title" text="Transacciones Recientes" />
-                                    <ListView fx:id="transactionsListView" VBox.vgrow="ALWAYS" />
+                                    <ListView fx:id="transactionsListView" VBox.vgrow="ALWAYS" styleClass="no-scroll-bar" />
                                 </children>
                             </VBox>
                         </VBox>
