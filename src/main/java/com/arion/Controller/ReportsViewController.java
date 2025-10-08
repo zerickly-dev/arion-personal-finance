@@ -217,8 +217,24 @@ public class ReportsViewController implements Initializable {
         SVGPath icon = new SVGPath();
         icon.setContent(iconPath);
         icon.getStyleClass().add("icon");
+
+        // Asignar un tamaño específico al icono
+        icon.setScaleX(1.2);
+        icon.setScaleY(1.2);
+
+        // Establecer color para el icono
+        if (styleClass.contains("edit")) {
+            icon.setStyle("-fx-fill: #007BFF;"); // Azul para editar
+        } else if (styleClass.contains("delete")) {
+            icon.setStyle("-fx-fill: #DC3545;"); // Rojo para eliminar
+        }
+
         button.setGraphic(icon);
         button.getStyleClass().addAll("button-icon", styleClass);
+
+        // Dar un tamaño mínimo al botón para asegurar visibilidad
+        button.setMinSize(30, 30);
+        button.setPrefSize(30, 30);
 
         // Agregar tooltip
         if (styleClass.contains("edit")) {
