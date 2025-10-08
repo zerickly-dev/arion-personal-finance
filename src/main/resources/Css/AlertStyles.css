@@ -26,10 +26,12 @@
 /* Contenido del diálogo */
 .dialog-pane .content {
     -fx-background-color: transparent;
-    -fx-padding: 0;
+    -fx-padding: 10px;
     -fx-spacing: 20px;
     -fx-alignment: CENTER;
     -fx-text-alignment: CENTER;
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
 }
 
 /* Estilo para el contenido de texto */
@@ -42,6 +44,8 @@
     -fx-alignment: CENTER;
     -fx-line-spacing: 4px;
     -fx-padding: 20px 0;
+    -fx-min-height: 80px;
+    -fx-pref-width: 350px;
 }
 
 /* Área de botones */
@@ -72,6 +76,9 @@
     -fx-min-width: 120px;
     -fx-pref-width: 120px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+    -fx-opacity: 1.0;
+    -fx-visible: true;
+    -fx-managed: true;
 }
 
 /* Botón primario (OK, Sí, Confirmar) */
@@ -106,6 +113,36 @@
 
 .dialog-pane .button:cancel:pressed {
     -fx-background-color: #E6E6E6;
+}
+
+/* Estilos específicos para diálogos de confirmación */
+.confirmation-alert {
+    -fx-min-height: 200px;
+}
+
+.confirmation-alert .button-bar {
+    -fx-alignment: CENTER;
+}
+
+/* Asegurar que los botones sean visibles */
+.confirmation-alert .button {
+    -fx-opacity: 1.0;
+    -fx-visible: true;
+}
+
+.confirmation-alert .button:default {
+    -fx-background-color: #17A2B8;
+    -fx-text-fill: white;
+}
+
+.confirmation-alert .button:default:hover {
+    -fx-background-color: #138496;
+}
+
+.confirmation-alert .button:cancel {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #333333;
+    -fx-border-color: #CCC;
 }
 
 /* === ALERTAS ESPECÍFICAS CON ICONOS === */
