@@ -4,7 +4,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -36,119 +35,125 @@ public class AlertUtils {
     }
 
     private static Alert createStyledAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(null); // Lo hacemos null para usar nuestro propio contenido
-
-        // Obtener el DialogPane para aplicar estilos
-        DialogPane dialogPane = alert.getDialogPane();
-
-        // Crear contenedor personalizado
-        VBox contentBox = new VBox(10);
-        contentBox.setAlignment(Pos.CENTER);
-        contentBox.setPadding(new Insets(10, 10, 10, 10));
-
-        // Agregar el mensaje en un Label personalizado
-        Label messageLabel = new Label(message);
-        messageLabel.setWrapText(true);
-        messageLabel.setAlignment(Pos.CENTER);
-        messageLabel.setMaxWidth(Double.MAX_VALUE);
-        messageLabel.setStyle("-fx-text-alignment: center;");
-
-        contentBox.getChildren().add(messageLabel);
-
-        // Reemplazar el contenido predeterminado con nuestro contenido personalizado
-        dialogPane.setContent(contentBox);
-
-        // Aplicar hoja de estilos CSS
         try {
-            String cssPath = AlertUtils.class.getResource("/Css/AlertStyles.css").toExternalForm();
-            dialogPane.getStylesheets().clear();
-            dialogPane.getStylesheets().add(cssPath);
-        } catch (Exception e) {
-            System.err.println("Error cargando estilos: " + e.getMessage());
-            e.printStackTrace();
-        }
+            Alert alert = new Alert(alertType);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
 
-        // Centrar los botones manualmente
-        dialogPane.lookupButton(ButtonType.OK).getStyleClass().add("default-button");
-        dialogPane.lookupButton(ButtonType.CANCEL).getStyleClass().add("cancel-button");
+            // Obtener el DialogPane para aplicar estilos
+            DialogPane dialogPane = alert.getDialogPane();
 
-        // Acceder al contenedor de botones y forzar centrado
-        Node buttonBar = dialogPane.lookup(".button-bar");
-        if (buttonBar instanceof ButtonBar) {
-            ButtonBar buttonBarControl = (ButtonBar) buttonBar;
-            buttonBarControl.setButtonOrder(ButtonBar.BUTTON_ORDER_WINDOWS);
-            buttonBarControl.setButtonMinWidth(100);
+            // Aplicar hoja de estilos CSS
+            try {
+                String cssPath = AlertUtils.class.getResource("/Css/AlertStyles.css").toExternalForm();
+                dialogPane.getStylesheets().clear();
+                dialogPane.getStylesheets().add(cssPath);
+            } catch (Exception e) {
+                System.err.println("Error cargando estilos: " + e.getMessage());
+            }
 
-            // Forzar el centrado en el ButtonBar
+            // Configurar contenido centrado
+            Label messageLabel = new Label(message);
+            messageLabel.setWrapText(true);
+            messageLabel.setAlignment(Pos.CENTER);
+            messageLabel.setMaxWidth(Double.MAX_VALUE);
+            messageLabel.setStyle("-fx-text-alignment: center;");
+
+            // Contenedor para el mensaje y controles
+            VBox contentBox = new VBox(10);
+            contentBox.setAlignment(Pos.CENTER);
+            contentBox.getChildren().add(messageLabel);
+
+            // Reemplazar contenido por defecto
+            dialogPane.setContent(contentBox);
+
+            // Centrar los botones de forma segura
             HBox buttonBox = new HBox();
             buttonBox.setAlignment(Pos.CENTER);
-            buttonBox.setSpacing(10);
+            buttonBox.setSpacing(15);
 
-            // Obtener y reorganizar los botones
-            for (Node button : dialogPane.getButtonTypes().stream()
-                     .map(dialogPane::lookupButton)
-                     .toArray(Node[]::new)) {
-                buttonBox.getChildren().add(button);
-                buttonBarControl.getButtons().remove(button);
+            // Aplicar estilo a los botones solo si existen
+            if (alertType == Alert.AlertType.CONFIRMATION) {
+                Node okButton = dialogPane.lookupButton(ButtonType.OK);
+                Node cancelButton = dialogPane.lookupButton(ButtonType.CANCEL);
+
+                if (okButton != null && okButton instanceof Button) {
+                    Button btn = (Button) okButton;
+                    btn.getStyleClass().add("default-button");
+                    buttonBox.getChildren().add(btn);
+                }
+
+                if (cancelButton != null && cancelButton instanceof Button) {
+                    Button btn = (Button) cancelButton;
+                    btn.getStyleClass().add("cancel-button");
+                    buttonBox.getChildren().add(btn);
+                }
+
+                if (!buttonBox.getChildren().isEmpty()) {
+                    // Solo agregar los botones personalizados si hay alguno
+                    VBox.setMargin(buttonBox, new Insets(20, 0, 0, 0));
+                    contentBox.getChildren().add(buttonBox);
+
+                    // Ocultar los botones originales solo si se han movido a nuestra caja personalizada
+                    ButtonBar originalButtonBar = (ButtonBar) dialogPane.lookup(".button-bar");
+                    if (originalButtonBar != null) {
+                        originalButtonBar.setVisible(false);
+                        originalButtonBar.setManaged(false);
+                    }
+                }
             }
 
-            // Aplicar configuración a los botones
-            for (Node button : buttonBox.getChildren()) {
-                HBox.setHgrow(button, Priority.ALWAYS);
-                ((Button)button).setMaxWidth(Double.MAX_VALUE);
+            // Limpiar clases existentes y aplicar nuevas
+            dialogPane.getStyleClass().clear();
+            dialogPane.getStyleClass().add("dialog-pane");
+
+            // Aplicar clase específica según el tipo de alerta
+            switch (alertType) {
+                case INFORMATION:
+                    dialogPane.getStyleClass().add("success-alert");
+                    break;
+                case ERROR:
+                    dialogPane.getStyleClass().add("error-alert");
+                    break;
+                case WARNING:
+                    dialogPane.getStyleClass().add("warning-alert");
+                    break;
+                case CONFIRMATION:
+                    dialogPane.getStyleClass().add("confirmation-alert");
+                    break;
             }
 
-            // Agregar el nuevo contenedor de botones al centro del diálogo
-            contentBox.getChildren().add(buttonBox);
-            VBox.setMargin(buttonBox, new Insets(20, 0, 0, 0));
+            // Remover el icono por defecto de JavaFX
+            alert.setGraphic(null);
 
-            // Ocultar el ButtonBar original
-            buttonBarControl.setVisible(false);
-            buttonBarControl.setManaged(false);
+            // Configurar el Stage después de que el Alert se haya mostrado
+            alert.setOnShown(e -> {
+                Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+                if (stage != null) {
+                    stage.setResizable(false);
+                    stage.centerOnScreen();
+                }
+            });
+
+            // Configurar tamaño del diálogo
+            dialogPane.setPrefWidth(400);
+            dialogPane.setMinWidth(350);
+            dialogPane.setMaxWidth(450);
+            dialogPane.setPrefHeight(200);
+            dialogPane.setMinHeight(180);
+
+            return alert;
+        } catch (Exception e) {
+            // En caso de error, devuelve una alerta básica sin personalización
+            System.err.println("Error al crear alerta personalizada: " + e.getMessage());
+            e.printStackTrace();
+
+            Alert fallbackAlert = new Alert(alertType);
+            fallbackAlert.setTitle(title);
+            fallbackAlert.setHeaderText(null);
+            fallbackAlert.setContentText(message);
+            return fallbackAlert;
         }
-
-        // Limpiar clases existentes y aplicar nuevas
-        dialogPane.getStyleClass().clear();
-        dialogPane.getStyleClass().add("dialog-pane");
-
-        // Aplicar clase específica según el tipo de alerta
-        switch (alertType) {
-            case INFORMATION:
-                dialogPane.getStyleClass().add("success-alert");
-                break;
-            case ERROR:
-                dialogPane.getStyleClass().add("error-alert");
-                break;
-            case WARNING:
-                dialogPane.getStyleClass().add("warning-alert");
-                break;
-            case CONFIRMATION:
-                dialogPane.getStyleClass().add("confirmation-alert");
-                break;
-        }
-
-        // Remover el icono por defecto de JavaFX
-        alert.setGraphic(null);
-
-        // Configurar el Stage después de que el Alert se haya mostrado
-        alert.setOnShown(e -> {
-            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-            if (stage != null) {
-                stage.setResizable(false);
-                stage.centerOnScreen();
-            }
-        });
-
-        // Configurar tamaño del diálogo
-        dialogPane.setPrefWidth(400);
-        dialogPane.setMinWidth(350);
-        dialogPane.setMaxWidth(450);
-        dialogPane.setPrefHeight(200);
-        dialogPane.setMinHeight(180);
-
-        return alert;
     }
 }
