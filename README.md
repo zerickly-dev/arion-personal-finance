@@ -61,7 +61,4 @@ transactions (id, user_id, description, category, date, amount, type, note)
 
 <img width="798" height="627" alt="image" src="https://github.com/user-attachments/assets/1345beea-97f2-4d9b-b812-cfc4ba4d6a5e" />
 
-## 📌 Estado del proyecto
-Arion está en fase inicial pero 100% funcional para la gestión de ingresos y gastos.  
-Próximamente: reportes más detallados, filtros avanzados y gráficas interactivas.
 
